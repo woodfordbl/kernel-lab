@@ -1,0 +1,4 @@
+{
+  // Colab: run colab.ipynb on a Colab GPU from the editor. Claude Code: `poe agent-help`.
+  "recommendations": ["google.colab", "ms-toolsai.jupyter", "ms-python.python", "anthropic.claude-code"]
+}

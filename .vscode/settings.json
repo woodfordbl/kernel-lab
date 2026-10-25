@@ -1,0 +1,9 @@
+{
+  // Exercise docs open as rendered previews. Right-click the tab > "Reopen Editor With..." to edit.
+  "workbench.editorAssociations": {
+    "**/ex*/README.md": "vscode.markdown.preview.editor",
+    "**/ex*/hints.md": "vscode.markdown.preview.editor"
+  },
+  // `poe agent-help` opens Claude Code in the right sidebar, next to the kernel.
+  "claudeCode.preferredLocation": "sidebar"
+}

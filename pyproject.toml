@@ -1,0 +1,27 @@
+[project]
+name = "kernel-lab"
+version = "0.1.0"
+description = "Seven Triton exercises building up transformer kernels"
+authors = [
+    { name = "Blake Woodford", email = "blake@altitude.so" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.4",
+    "triton>=3.0; sys_platform == 'linux'",
+    "triton-stubs>=0.1; sys_platform != 'linux'",
+    "pytest",
+]
+
+[dependency-groups]
+dev = [
+    "poethepoet>=0.49.0",
+]
+
+# Task runner (like package.json scripts). Run `uv run poe` to list tasks.
+[tool.poe.tasks]
+open = { cmd = "scripts/open.sh", help = "Open an exercise in VS Code or Cursor: poe open 3" }
+setup = { cmd = "scripts/setup.sh", help = "Build the Docker image for CPU tests (once)" }
+test = { cmd = "scripts/test.sh", help = "Run tests on Triton's CPU interpreter in Docker: poe test 3" }
+agent-help = { cmd = "scripts/agent-help.sh", help = "Start an AI coach for an exercise: poe agent-help 3 [claude|codex]" }
+push = { cmd = "scripts/push.sh", help = "Commit everything and push: poe push \"msg\"" }

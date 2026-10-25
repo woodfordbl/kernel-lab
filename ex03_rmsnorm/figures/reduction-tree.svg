@@ -1,0 +1,282 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 440" width="840" height="440" role="img" aria-labelledby="t d">
+  <title id="t">How tl.sum reduces a row</title>
+  <desc id="d">One program has 8 warps of 32 threads, each thread holding 16 elements. Step 0: each thread sums its own elements in registers. Step 1: within a warp, 5 rounds of shuffles with offsets 16, 8, 4, 2 and 1 halve the number of lanes holding partial sums until lane 0 holds the warp's sum. Step 2: each warp writes its sum to shared memory and one warp adds the 8 values. Step 3: the result is broadcast to all 256 threads.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106); --muted-foreground:oklch(0.5 0.005 106);
+          --on-fill:oklch(1 0.005 106); --brand:oklch(0.46 0.032 240); --chart-2:oklch(0.82 0.04 244.9); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86); --border:oklch(0.94 0.013 86 / 12%);
+            --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86); --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --on-fill:oklch(0.208 0.013 86); --brand:oklch(0.78 0.035 240); --chart-2:oklch(0.46 0.05 252.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .small { font-size:12px; }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .live { fill:var(--chart-2); }
+    .done { fill:var(--muted); }
+    .sum { fill:var(--brand); }
+    .shfl { fill:none; stroke:var(--muted-foreground); stroke-width:0.75; }
+    .flow { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .edge { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; marker-end:url(#tip); }
+    .res { fill:var(--foreground); }
+    .on { fill:var(--on-fill); }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="439" rx="16"/>
+
+  <text class="eyebrow" x="40" y="40">ONE PROGRAM: 8 WARPS x 32 THREADS x 16 ELEMENTS = 4096</text>
+  <text class="meta" x="180" y="68">lane 0</text>
+  <text class="meta" x="594" y="68" text-anchor="end">lane 31</text>
+  <text class="meta" x="614" y="68">warp 0 (warps 1 to 7 alike)</text>
+
+  <!-- step 0: registers -->
+  <text class="mono ink-2" x="40" y="90">per thread</text>
+  <rect class="live" x="180" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="193" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="206" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="219" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="232" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="245" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="258" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="271" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="284" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="297" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="310" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="323" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="336" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="349" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="362" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="375" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="388" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="401" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="414" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="427" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="440" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="453" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="466" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="479" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="492" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="505" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="518" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="531" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="544" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="557" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="570" y="78" width="11" height="16" rx="2"/>
+  <rect class="live" x="583" y="78" width="11" height="16" rx="2"/>
+  <text class="small ink-2" x="614" y="91">step 0: sum own 16 elements</text>
+
+  <!-- shuffle round 1, offset 16 -->
+  <text class="mono ink-2" x="40" y="134">offset 16</text>
+  <path class="shfl" d="M393.5,94 L185.5,122 M406.5,94 L198.5,122 M419.5,94 L211.5,122 M432.5,94 L224.5,122 M445.5,94 L237.5,122 M458.5,94 L250.5,122 M471.5,94 L263.5,122 M484.5,94 L276.5,122 M497.5,94 L289.5,122 M510.5,94 L302.5,122 M523.5,94 L315.5,122 M536.5,94 L328.5,122 M549.5,94 L341.5,122 M562.5,94 L354.5,122 M575.5,94 L367.5,122 M588.5,94 L380.5,122"/>
+  <rect class="live" x="180" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="193" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="206" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="219" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="232" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="245" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="258" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="271" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="284" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="297" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="310" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="323" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="336" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="349" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="362" y="122" width="11" height="16" rx="2"/>
+  <rect class="live" x="375" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="388" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="401" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="414" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="427" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="440" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="453" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="466" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="479" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="492" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="505" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="518" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="531" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="544" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="557" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="570" y="122" width="11" height="16" rx="2"/>
+  <rect class="done" x="583" y="122" width="11" height="16" rx="2"/>
+  <text class="small ink-2" x="614" y="135">step 1: 16 lanes hold sums</text>
+
+  <!-- shuffle round 2, offset 8 -->
+  <text class="mono ink-2" x="40" y="178">offset 8</text>
+  <path class="shfl" d="M289.5,138 L185.5,166 M302.5,138 L198.5,166 M315.5,138 L211.5,166 M328.5,138 L224.5,166 M341.5,138 L237.5,166 M354.5,138 L250.5,166 M367.5,138 L263.5,166 M380.5,138 L276.5,166"/>
+  <rect class="live" x="180" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="193" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="206" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="219" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="232" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="245" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="258" y="166" width="11" height="16" rx="2"/>
+  <rect class="live" x="271" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="284" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="297" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="310" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="323" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="336" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="349" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="362" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="375" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="388" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="401" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="414" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="427" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="440" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="453" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="466" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="479" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="492" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="505" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="518" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="531" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="544" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="557" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="570" y="166" width="11" height="16" rx="2"/>
+  <rect class="done" x="583" y="166" width="11" height="16" rx="2"/>
+  <text class="small ink-2" x="614" y="179">8 lanes</text>
+
+  <!-- shuffle round 3, offset 4 -->
+  <text class="mono ink-2" x="40" y="222">offset 4</text>
+  <path class="shfl" d="M237.5,182 L185.5,210 M250.5,182 L198.5,210 M263.5,182 L211.5,210 M276.5,182 L224.5,210"/>
+  <rect class="live" x="180" y="210" width="11" height="16" rx="2"/>
+  <rect class="live" x="193" y="210" width="11" height="16" rx="2"/>
+  <rect class="live" x="206" y="210" width="11" height="16" rx="2"/>
+  <rect class="live" x="219" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="232" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="245" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="258" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="271" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="284" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="297" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="310" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="323" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="336" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="349" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="362" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="375" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="388" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="401" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="414" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="427" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="440" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="453" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="466" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="479" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="492" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="505" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="518" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="531" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="544" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="557" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="570" y="210" width="11" height="16" rx="2"/>
+  <rect class="done" x="583" y="210" width="11" height="16" rx="2"/>
+  <text class="small ink-2" x="614" y="223">4 lanes</text>
+
+  <!-- shuffle round 4, offset 2 -->
+  <text class="mono ink-2" x="40" y="266">offset 2</text>
+  <path class="shfl" d="M211.5,226 L185.5,254 M224.5,226 L198.5,254"/>
+  <rect class="live" x="180" y="254" width="11" height="16" rx="2"/>
+  <rect class="live" x="193" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="206" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="219" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="232" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="245" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="258" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="271" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="284" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="297" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="310" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="323" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="336" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="349" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="362" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="375" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="388" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="401" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="414" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="427" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="440" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="453" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="466" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="479" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="492" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="505" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="518" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="531" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="544" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="557" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="570" y="254" width="11" height="16" rx="2"/>
+  <rect class="done" x="583" y="254" width="11" height="16" rx="2"/>
+  <text class="small ink-2" x="614" y="267">2 lanes</text>
+
+  <!-- shuffle round 5, offset 1 -->
+  <text class="mono ink-2" x="40" y="310">offset 1</text>
+  <path class="shfl" d="M198.5,270 L185.5,298"/>
+  <rect class="sum" x="180" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="193" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="206" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="219" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="232" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="245" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="258" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="271" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="284" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="297" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="310" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="323" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="336" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="349" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="362" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="375" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="388" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="401" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="414" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="427" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="440" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="453" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="466" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="479" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="492" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="505" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="518" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="531" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="544" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="557" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="570" y="298" width="11" height="16" rx="2"/>
+  <rect class="done" x="583" y="298" width="11" height="16" rx="2"/>
+  <text class="small" x="614" y="311">lane 0 holds the warp sum</text>
+
+  <!-- step 2: shared memory, step 3: broadcast -->
+  <path class="edge" d="M185.5,314 V352"/>
+  <text class="mono ink-2" x="40" y="370">shared memory</text>
+  <g class="mono" text-anchor="middle">
+    <rect class="live" x="180" y="354" width="40" height="24" rx="2"/><text x="200" y="370">w0</text>
+    <rect class="live" x="224" y="354" width="40" height="24" rx="2"/><text x="244" y="370">w1</text>
+    <rect class="live" x="268" y="354" width="40" height="24" rx="2"/><text x="288" y="370">w2</text>
+    <rect class="live" x="312" y="354" width="40" height="24" rx="2"/><text x="332" y="370">w3</text>
+    <rect class="live" x="356" y="354" width="40" height="24" rx="2"/><text x="376" y="370">w4</text>
+    <rect class="live" x="400" y="354" width="40" height="24" rx="2"/><text x="420" y="370">w5</text>
+    <rect class="live" x="444" y="354" width="40" height="24" rx="2"/><text x="464" y="370">w6</text>
+    <rect class="live" x="488" y="354" width="40" height="24" rx="2"/><text x="508" y="370">w7</text>
+  </g>
+  <path class="flow" d="M528,366 H566"/>
+  <rect class="res" x="568" y="352" width="88" height="28" rx="6"/>
+  <text class="mono on" x="612" y="370" text-anchor="middle">row total</text>
+  <text class="small ink-2" x="672" y="364">step 3: broadcast</text>
+  <text class="small ink-2" x="672" y="380">to all 256 threads</text>
+  <text class="meta" x="180" y="406">step 2: each warp writes its sum (w0 to w7), then one warp adds the 8 values</text>
+</svg>

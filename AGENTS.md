@@ -11,6 +11,7 @@ second job, when asked, is to write new exercises.
 | Path | What it is |
 |------|------------|
 | `exNN_*/README.md` | The exercise: goal, steps, concepts, what to look for, stretch goals |
+| `exNN_*/figures/*.svg` | Diagrams embedded in the README, with light and dark colours |
 | `exNN_*/kernel.py` | The learner's code. `TODO`s mark what they fill in; launch wrappers are done |
 | `exNN_*/hints.md` | Three hints per exercise, from a nudge to nearly the answer |
 | `exNN_*/test_kernel.py` | Correctness tests (pytest) |
@@ -62,6 +63,11 @@ When asked for more exercises, usually harder ones, follow the existing structur
 2. **`README.md`:** `# Exercise N: title`, then a **Goal:** line, then `## Do` (numbered
    steps using `uv run poe test N` and `python -m exNN_name.bench` in Colab), `## Concepts`,
    `## What to look for` and `## Stretch`. Say which earlier exercise each new idea builds on.
+   Write it as a lesson to take notes from: numbered `###` sections under Concepts, worked
+   numbers for the real shapes, then `## Check yourself` questions and `## Key takeaways`.
+   Draw diagrams as hand-written SVGs in `exNN_name/figures/`, styled like
+   `ex04_matmul/figures/` (the same colour variables with a `prefers-color-scheme: dark`
+   block, system fonts), embedded as `![descriptive alt text](figures/name.svg)`.
 3. **`kernel.py`:** a module docstring that states the operation and the structure. A
    complete, working launch wrapper. A `@triton.jit` kernel with numbered `TODO`s, each
    explaining what to compute but not how. Give a small CPU config when `not ON_GPU` (see

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 540" width="840" height="540" role="img" aria-labelledby="t d">
+  <title id="t">Tiled GEMM: one program's K loop</title>
+  <desc id="d">The program owning one C tile walks along K. At each step it loads one A tile from its row strip and one B tile from its column strip, and adds their product to an fp32 accumulator.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-4:oklch(0.79 0.06 53.3); --chart-line-4:oklch(0.55 0.108 53.3);
+          --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-4:oklch(0.52 0.065 46.8); --chart-line-4:oklch(0.78 0.117 46.8);
+            --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .matrix { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .cut { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .edge { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .a-strip { fill:var(--chart-2); }
+    .a { fill:var(--brand); }
+    .b-strip { fill:var(--chart-4); }
+    .b { fill:var(--chart-line-4); }
+    .c { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="539" rx="16"/>
+
+  <!-- B: [K, N] -->
+  <rect class="matrix" x="300" y="50" width="240" height="200" rx="2"/>
+  <rect class="b-strip" x="400" y="50" width="60" height="200"/>
+  <path class="cut" d="M400,100 H460 M400,150 H460 M400,200 H460"/>
+  <rect class="b" x="400" y="100" width="60" height="50"/>
+  <g class="mono" text-anchor="middle">
+    <text x="430" y="79">B0</text>
+    <text class="on" x="430" y="130">B1</text>
+    <text x="430" y="179">B2</text>
+    <text x="430" y="229">B3</text>
+  </g>
+  <text class="title" x="310" y="74">B</text>
+  <text class="mono ink-2" x="310" y="92">[K, N]</text>
+  <path class="axis" d="M300,36 H360"/><text class="meta" x="366" y="40">N</text>
+  <path class="axis" d="M286,50 V110"/><text class="meta" x="281" y="126" text-anchor="middle">K</text>
+
+  <!-- A: [M, K] -->
+  <rect class="matrix" x="60" y="280" width="200" height="200" rx="2"/>
+  <rect class="a-strip" x="60" y="340" width="200" height="50"/>
+  <path class="cut" d="M110,340 V390 M160,340 V390 M210,340 V390"/>
+  <rect class="a" x="110" y="340" width="50" height="50"/>
+  <g class="mono" text-anchor="middle">
+    <text x="85" y="370">A0</text>
+    <text class="on" x="135" y="370">A1</text>
+    <text x="185" y="370">A2</text>
+    <text x="235" y="370">A3</text>
+  </g>
+  <text class="title" x="70" y="304">A</text>
+  <text class="mono ink-2" x="70" y="322">[M, K]</text>
+  <path class="axis" d="M60,496 H120"/><text class="meta" x="126" y="500">K</text>
+  <path class="axis" d="M46,280 V340"/><text class="meta" x="41" y="356" text-anchor="middle">M</text>
+
+  <!-- C: [M, N] -->
+  <rect class="matrix" x="300" y="280" width="240" height="200" rx="2"/>
+  <path class="edge" d="M260,340 H400 M260,390 H400 M400,250 V340 M460,250 V340"/>
+  <rect class="c" x="400" y="340" width="60" height="50"/>
+  <text class="on" x="430" y="362" text-anchor="middle">acc</text>
+  <text class="on" x="430" y="378" text-anchor="middle">fp32</text>
+  <text class="title" x="310" y="304">C</text>
+  <text class="mono ink-2" x="310" y="322">[M, N]</text>
+  <text class="meta" x="430" y="504" text-anchor="middle">one program's tile</text>
+  <text class="mono ink-2" x="430" y="522" text-anchor="middle">BLOCK_M × BLOCK_N</text>
+
+  <!-- top left: the step -->
+  <text class="eyebrow" x="60" y="66">ONE PROGRAM · STEP 1 OF 4</text>
+  <text class="mono" x="60" y="98" style="font-size:13px">acc += tl.dot(A1, B1)</text>
+  <text class="ink-2" x="60" y="138">After the loop:</text>
+  <text class="mono" x="60" y="162" style="font-size:13px">C_tile = A0·B0 + A1·B1</text>
+  <text class="mono" x="117" y="182" style="font-size:13px">+ A2·B2 + A3·B3</text>
+  <text class="ink-2" x="60" y="218">then cast to fp16 and store</text>
+
+  <!-- right: legend and the reuse argument -->
+  <text class="eyebrow" x="580" y="66">PER K STEP</text>
+  <rect class="a" x="580" y="86" width="14" height="14" rx="2"/>
+  <text x="604" y="98">load one A tile</text>
+  <text class="mono ink-2" x="604" y="116">[BLOCK_M, BLOCK_K]</text>
+  <rect class="b" x="580" y="134" width="14" height="14" rx="2"/>
+  <text x="604" y="146">load one B tile</text>
+  <text class="mono ink-2" x="604" y="164">[BLOCK_K, BLOCK_N]</text>
+  <rect class="c" x="580" y="182" width="14" height="14" rx="2"/>
+  <text x="604" y="194">multiply-add on tensor cores</text>
+
+  <text class="eyebrow" x="580" y="304">WHY IT'S FAST: REUSE</text>
+  <text x="580" y="332">Each A tile is used for all</text>
+  <text x="580" y="351">BLOCK_N columns of the tile.</text>
+  <text x="580" y="379">Each B tile is used for all</text>
+  <text x="580" y="398">BLOCK_M rows of the tile.</text>
+  <text class="ink-2" x="580" y="432">Tile intensity, fp16:</text>
+  <text class="mono" x="580" y="452" style="font-size:13px">BM·BN / (BM + BN)</text>
+</svg>

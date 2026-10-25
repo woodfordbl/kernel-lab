@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 400" width="840" height="400" role="img" aria-labelledby="t d">
+  <title id="t">One program per row</title>
+  <desc id="d">The grid has one program per token row. The program loads its row of x and residual once, keeps h in registers in fp32, stores h, reduces h squared to the mean square, then scales by rsqrt and weight and stores out. Two rows are read and two are written; nothing is read twice.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106); --muted-foreground:oklch(0.5 0.005 106);
+          --on-fill:oklch(1 0.005 106); --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-3:oklch(0.79 0.045 152.8); --chart-4:oklch(0.79 0.06 53.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --border:oklch(0.94 0.013 86 / 12%);
+            --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86); --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --on-fill:oklch(0.208 0.013 86); --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-3:oklch(0.5 0.055 151); --chart-4:oklch(0.52 0.065 46.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .matrix { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .cut { fill:none; stroke:var(--border); }
+    .edge { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .flow { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .hot { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .x { fill:var(--chart-2); }
+    .r { fill:var(--chart-4); }
+    .w { fill:var(--chart-3); }
+    .res { fill:var(--foreground); }
+    .on { fill:var(--on-fill); }
+    .step { font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="399" rx="16"/>
+
+  <!-- left: the grid -->
+  <text class="eyebrow" x="40" y="44">GRID (T,)</text>
+  <rect class="matrix" x="40" y="70" width="200" height="240" rx="2"/>
+  <path class="cut" d="M40,94 H240 M40,118 H240 M40,142 H240 M40,166 H240 M40,190 H240 M40,214 H240 M40,238 H240 M40,262 H240 M40,286 H240"/>
+  <rect class="hot" x="40" y="166" width="200" height="24" rx="2"/>
+  <text class="mono" x="140" y="182" text-anchor="middle">row = program_id(0)</text>
+  <text class="meta" x="40" y="330">one row per token, D columns</text>
+  <text class="meta" x="40" y="348">rows never interact</text>
+  <path class="edge" d="M240,178 H300"/>
+
+  <!-- right: what one program does -->
+  <text class="eyebrow" x="300" y="44">ONE PROGRAM</text>
+  <text class="meta" x="300" y="66">read from memory, once</text>
+  <rect class="x" x="300" y="76" width="140" height="26" rx="6"/>
+  <text class="mono" x="370" y="93" text-anchor="middle">x row</text>
+  <rect class="r" x="460" y="76" width="140" height="26" rx="6"/>
+  <text class="mono" x="530" y="93" text-anchor="middle">residual row</text>
+  <rect class="w" x="640" y="76" width="140" height="26" rx="6"/>
+  <text class="mono" x="710" y="93" text-anchor="middle">weight [D]</text>
+
+  <path class="flow" d="M370,102 V140"/>
+  <path class="flow" d="M530,102 V140"/>
+  <path class="flow" d="M710,102 V140"/>
+  <text class="meta" x="378" y="126">1 load</text>
+  <text class="meta" x="538" y="126">1 load</text>
+  <text class="meta" x="718" y="126">4 load</text>
+
+  <!-- registers -->
+  <rect class="hot" x="300" y="142" width="480" height="104" rx="6"/>
+  <text class="step" x="316" y="166">Registers: the row of h, in fp32</text>
+  <g class="mono">
+    <text x="316" y="192">1</text><text x="336" y="192">h = x + residual</text>
+    <text x="316" y="212">3</text><text x="336" y="212">ms = mean(h^2)</text>
+    <text x="316" y="232">4</text><text x="336" y="232">out = h * rsqrt(ms + eps) * weight</text>
+  </g>
+  <text x="764" y="212" text-anchor="end" style="font-size:12px">one scalar per row, via tl.sum</text>
+
+  <path class="flow" d="M370,246 V284"/>
+  <path class="flow" d="M710,246 V284"/>
+  <text class="meta" x="378" y="270">2 store h</text>
+  <text class="meta" x="718" y="270">4 store out</text>
+
+  <rect class="res" x="300" y="286" width="140" height="26" rx="6"/>
+  <text class="mono on" x="370" y="303" text-anchor="middle">h row</text>
+  <rect class="res" x="640" y="286" width="140" height="26" rx="6"/>
+  <text class="mono on" x="710" y="303" text-anchor="middle">out row</text>
+  <text class="meta" x="300" y="330">written to memory</text>
+  <text class="ink-2" x="300" y="356">D = 4096 in fp16: 8 KB per row = 8 warps x 32 threads x 16 elements.</text>
+  <text class="ink-2" x="300" y="376">Steps 2 to 4 reuse h from registers. Nothing is read twice.</text>
+</svg>

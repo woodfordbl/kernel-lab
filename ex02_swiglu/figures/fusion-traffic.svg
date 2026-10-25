@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 430" width="840" height="430" role="img" aria-labelledby="t d">
+  <title id="t">Eager vs fused SwiGLU traffic</title>
+  <desc id="d">Eager PyTorch runs two kernels. Kernel 1 reads g and writes tmp to HBM; kernel 2 reads tmp and u and writes out. That is 5 tensors of traffic, 587 MB, about 2.1 ms on a T4. The fused kernel reads g and u and writes out, keeping silu(g) in registers: 3 tensors, 352 MB, about 1.25 ms. Best case speedup 5 / 3, about 1.67x.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-3:oklch(0.79 0.045 152.8); --chart-4:oklch(0.79 0.06 53.3);
+          --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-3:oklch(0.5 0.055 151); --chart-4:oklch(0.52 0.065 46.8);
+            --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta, .meta text { font-size:12px; fill:var(--muted-foreground); }
+    .strong { font-weight:500; }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .hbm { fill:var(--muted); stroke:var(--border); }
+    .op { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; font-weight:500; }
+    .g { fill:var(--chart-2); }
+    .u { fill:var(--chart-4); }
+    .o { fill:var(--chart-3); }
+    .tmp { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="429" rx="16"/>
+  <path class="guide" d="M420,28 V360"/>
+
+  <!-- ===== Eager ===== -->
+  <text class="eyebrow" x="24" y="44">EAGER · TWO KERNELS</text>
+  <rect class="op" x="40" y="70" width="150" height="44" rx="6"/>
+  <text class="on" x="115" y="97" text-anchor="middle">kernel 1: silu(g)</text>
+  <rect class="op" x="230" y="70" width="166" height="44" rx="6"/>
+  <text class="on" x="313" y="97" text-anchor="middle">kernel 2: tmp * u</text>
+
+  <rect class="hbm" x="24" y="200" width="380" height="64" rx="6"/>
+  <text class="eyebrow" x="34" y="192">HBM</text>
+  <g class="mono" text-anchor="middle">
+    <rect class="g" x="48" y="214" width="64" height="36" rx="2"/><text x="80" y="237">g</text>
+    <rect class="tmp" x="150" y="214" width="110" height="36" rx="2"/><text x="205" y="237">tmp</text>
+    <rect class="u" x="280" y="214" width="50" height="36" rx="2"/><text x="305" y="237">u</text>
+    <rect class="o" x="340" y="214" width="52" height="36" rx="2"/><text x="366" y="237">out</text>
+  </g>
+  <path class="axis" d="M80,212 V118"/>
+  <path class="axis" d="M175,116 V210"/>
+  <path class="axis" d="M245,212 V118"/>
+  <path class="axis" d="M305,212 V118"/>
+  <path class="axis" d="M366,116 V210"/>
+  <g class="meta">
+    <text x="86" y="164">read</text>
+    <text x="181" y="164">write</text>
+    <text x="251" y="164">read</text>
+    <text x="311" y="164">read</text>
+    <text x="372" y="164">write</text>
+  </g>
+  <text class="meta" x="205" y="282" text-anchor="middle">round trip through HBM</text>
+
+  <text class="strong" x="24" y="318">5 tensors of traffic</text>
+  <text class="mono" x="24" y="340">5 x 117.4 MB = 587 MB</text>
+  <text class="meta" x="24" y="360">about 2.1 ms at 280 GB/s (T4)</text>
+
+  <!-- ===== Fused ===== -->
+  <text class="eyebrow" x="444" y="44">FUSED · ONE KERNEL</text>
+  <rect class="op" x="452" y="70" width="348" height="44" rx="6"/>
+  <text class="on" x="626" y="97" text-anchor="middle">silu(g) * u, all in registers</text>
+
+  <rect class="hbm" x="444" y="200" width="372" height="64" rx="6"/>
+  <text class="eyebrow" x="454" y="192">HBM</text>
+  <g class="mono" text-anchor="middle">
+    <rect class="g" x="476" y="214" width="64" height="36" rx="2"/><text x="508" y="237">g</text>
+    <rect class="u" x="590" y="214" width="50" height="36" rx="2"/><text x="615" y="237">u</text>
+    <rect class="o" x="714" y="214" width="52" height="36" rx="2"/><text x="740" y="237">out</text>
+  </g>
+  <path class="axis" d="M508,212 V118"/>
+  <path class="axis" d="M615,212 V118"/>
+  <path class="axis" d="M740,116 V210"/>
+  <g class="meta">
+    <text x="514" y="164">read</text>
+    <text x="621" y="164">read</text>
+    <text x="746" y="164">write</text>
+  </g>
+  <text class="meta" x="626" y="282" text-anchor="middle">no intermediate in HBM</text>
+
+  <text class="strong" x="444" y="318">3 tensors of traffic</text>
+  <text class="mono" x="444" y="340">3 x 117.4 MB = 352 MB</text>
+  <text class="meta" x="444" y="360">about 1.25 ms at 280 GB/s (T4)</text>
+
+  <!-- footer -->
+  <text x="420" y="396" text-anchor="middle">Best case: 5 / 3 = about 1.67x faster, with the same math</text>
+  <text class="meta" x="420" y="415" text-anchor="middle">each tensor is [M, F] in fp16: 117.4 MB at M = 4096, F = 14336</text>
+</svg>

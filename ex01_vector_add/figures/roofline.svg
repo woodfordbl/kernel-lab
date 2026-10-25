@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 520" width="840" height="520" role="img" aria-labelledby="t d">
+  <title id="t">The T4 roofline</title>
+  <desc id="d">Log-log plot of attainable FLOP/s against arithmetic intensity. A bandwidth line of slope 320 GB/s rises from the left and meets the flat 65 TFLOP/s compute roof at the ridge, about 203 FLOP/byte. Vector add sits far left at 0.17 FLOP/byte, on the bandwidth line at about 53 GFLOP/s: memory-bound.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --brand-muted:oklch(0.935 0.0096 240); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --brand-muted:oklch(0.3 0.014 240); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .grid { fill:none; stroke:var(--border); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .roof { fill:none; stroke:var(--foreground); stroke-width:2.5; stroke-linejoin:round; }
+    .region { fill:var(--muted); }
+    .point { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="519" rx="16"/>
+  <!-- scales: x = 140 + 150*(log10(AI)+1), AI 0.1..1000; y = 450 - 90*(log10(GFLOP/s)-1), 10 G..100 T -->
+
+  <text class="eyebrow" x="24" y="36">T4 ROOFLINE · LOG-LOG</text>
+
+  <!-- memory-bound region tint (left of the ridge) -->
+  <rect class="region" x="140" y="90" width="496.2" height="360"/>
+
+  <!-- grid -->
+  <path class="grid" d="M290,90 V450 M440,90 V450 M590,90 V450 M740,90 V450 M140,90 H740 M140,180 H740 M140,270 H740 M140,360 H740"/>
+
+  <!-- axes -->
+  <path class="axis" d="M140,450 H760"/>
+  <path class="axis" d="M140,450 V70"/>
+  <g class="mono" text-anchor="end">
+    <text x="130" y="454">10 G</text>
+    <text x="130" y="364">100 G</text>
+    <text x="130" y="274">1 T</text>
+    <text x="130" y="184">10 T</text>
+    <text x="130" y="94">100 T</text>
+  </g>
+  <text class="meta" x="24" y="64">FLOP/s</text>
+  <g class="mono" text-anchor="middle">
+    <text x="140" y="470">0.1</text>
+    <text x="290" y="470">1</text>
+    <text x="440" y="470">10</text>
+    <text x="590" y="470">100</text>
+    <text x="740" y="470">1000</text>
+  </g>
+  <text class="meta" x="760" y="496" text-anchor="end">arithmetic intensity (FLOP/byte)</text>
+
+  <!-- ridge guide -->
+  <path class="guide" d="M636.2,106.8 V450"/>
+  <text class="mono" x="644" y="438">≈ 203</text>
+  <text class="mono" x="644" y="424">ridge</text>
+
+  <!-- the roof: min(65 TFLOP/s, AI x 320 GB/s) -->
+  <path class="roof" d="M140,404.5 L636.2,106.8 H740"/>
+  <text x="652" y="98">65 TFLOP/s</text>
+  <text class="meta" x="652" y="128">peak compute</text>
+  <text transform="translate(383,248) rotate(-30.96)" text-anchor="middle">slope = 320 GB/s</text>
+
+  <!-- region labels -->
+  <text class="eyebrow" x="156" y="118">MEMORY-BOUND</text>
+  <text class="meta" x="156" y="138">speed set by bytes/s</text>
+  <text class="eyebrow" x="652" y="230">COMPUTE-</text>
+  <text class="eyebrow" x="652" y="246">BOUND</text>
+  <text class="meta" x="652" y="266">set by FLOP/s</text>
+
+  <!-- vector add -->
+  <circle class="point" cx="173.3" cy="384.6" r="6"/>
+  <path class="guide" d="M173.3,390.6 V450"/>
+  <text x="188" y="414">vector add, AI ≈ 0.17</text>
+  <text class="meta" x="188" y="432">at most 0.17 × 320 GB/s ≈ 53 GFLOP/s</text>
+</svg>

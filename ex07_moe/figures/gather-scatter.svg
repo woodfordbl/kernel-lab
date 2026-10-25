@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" width="860" height="420" role="img" aria-labelledby="t d">
+  <title id="t">Gather on load, scatter on store</title>
+  <desc id="d">Tile pid_m 2 holds pairs 1, 2, 5 and one padding slot. Its rows are loaded from x rows 0, 1, 2 (token = pair // top_k) and written to out rows 1, 2, 5 (out[pair]). The padding row, sentinel 6, is masked on both load and store.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --on-fill:oklch(1 0.005 106);
+          --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240);
+          --chart-2:oklch(0.82 0.04 244.9); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --on-fill:oklch(0.208 0.013 86);
+            --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240); --chart-2:oklch(0.46 0.05 252.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .strong { font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .cell { fill:var(--card); stroke:var(--border); }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 3; }
+    .hot { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .e0 { fill:var(--chart-2); }
+    .c { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="859" height="419" rx="16"/>
+  <text class="eyebrow" x="40" y="44">X [T, K]</text>
+  <text class="eyebrow" x="330" y="44">TILE PID_M = 2 · EXPERT 2</text>
+  <text class="eyebrow" x="650" y="44">OUT [T * TOP_K, N]</text>
+  <rect class="e0" x="40" y="90" width="170" height="30" rx="2"/><text class="mono" x="52" y="109">token 0</text>
+  <rect class="e0" x="40" y="154" width="170" height="30" rx="2"/><text class="mono" x="52" y="173">token 1</text>
+  <rect class="e0" x="40" y="218" width="170" height="30" rx="2"/><text class="mono" x="52" y="237">token 2</text>
+  <rect class="c" x="330" y="80" width="200" height="30" rx="2"/><text class="on" x="342" y="99">pair 1 · token 0</text>
+  <rect class="c" x="330" y="132" width="200" height="30" rx="2"/><text class="on" x="342" y="151">pair 2 · token 1</text>
+  <rect class="c" x="330" y="184" width="200" height="30" rx="2"/><text class="on" x="342" y="203">pair 5 · token 2</text>
+  <rect class="pad" x="330.5" y="236.5" width="199" height="29" rx="2"/><text class="mono meta" x="342" y="255">pair 6 · padding</text>
+  <rect class="cell" x="650" y="70" width="170" height="26" rx="2"/><text class="mono meta" x="662" y="87">out[0]</text><text class="meta" x="810" y="87" text-anchor="end">other tile</text>
+  <rect class="hot" x="650" y="108" width="170" height="26" rx="2"/><text class="mono" x="662" y="125">out[1]</text>
+  <rect class="hot" x="650" y="146" width="170" height="26" rx="2"/><text class="mono" x="662" y="163">out[2]</text>
+  <rect class="cell" x="650" y="184" width="170" height="26" rx="2"/><text class="mono meta" x="662" y="201">out[3]</text><text class="meta" x="810" y="201" text-anchor="end">other tile</text>
+  <rect class="cell" x="650" y="222" width="170" height="26" rx="2"/><text class="mono meta" x="662" y="239">out[4]</text><text class="meta" x="810" y="239" text-anchor="end">other tile</text>
+  <rect class="hot" x="650" y="260" width="170" height="26" rx="2"/><text class="mono" x="662" y="277">out[5]</text>
+  <path class="axis" d="M214,105.0 C270,105.0 270,95.0 324,95.0"/>
+  <path class="axis" d="M534,95.0 C590,95.0 590,121.0 644,121.0"/>
+  <path class="axis" d="M214,169.0 C270,169.0 270,147.0 324,147.0"/>
+  <path class="axis" d="M534,147.0 C590,147.0 590,159.0 644,159.0"/>
+  <path class="axis" d="M214,233.0 C270,233.0 270,199.0 324,199.0"/>
+  <path class="axis" d="M534,199.0 C590,199.0 590,273.0 644,273.0"/>
+  <text class="strong" x="40" y="300">Gather on load</text>
+  <text class="ink-2" x="40" y="322">tile row r is pair <tspan class="mono">sorted_ids[r]</tspan>,</text>
+  <text class="ink-2" x="40" y="342">which reads x row</text><text class="mono" x="162" y="342">pair // top_k</text>
+  <text class="strong" x="330" y="300">Padding row</text>
+  <text class="ink-2" x="330" y="322">6 is not a valid pair (<tspan class="mono">T * top_k = 6</tspan>),</text>
+  <text class="ink-2" x="330" y="342">so the row mask turns off its load</text>
+  <text class="ink-2" x="330" y="362">and its store</text>
+  <text class="strong" x="650" y="300">Scatter on store</text>
+  <text class="ink-2" x="650" y="322">tile row r writes</text>
+  <text class="ink-2" x="650" y="342">out row</text><text class="mono" x="704" y="342">pair</text>
+  <text class="meta" x="40" y="400">T = 3, top_k = 2. No permuted copy of x is written: the row indices come from sorted_ids in memory.</text>
+</svg>

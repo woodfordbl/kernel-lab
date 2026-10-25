@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 300" width="840" height="300" role="img" aria-labelledby="t d">
+  <title id="t">Padding lanes in a reduction</title>
+  <desc id="d">With D = 4000 and BLOCK_D = 4096, lanes 0 to 3999 are real and masked in, and lanes 4000 to 4095 are 96 padding lanes, masked out. Masked lanes are filled with the other= value instead of being read, but tl.sum still adds all 4096 lanes. The mean divides by D = 4000, the number of real lanes.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106); --muted-foreground:oklch(0.5 0.005 106);
+          --brand:oklch(0.46 0.032 240); --chart-2:oklch(0.82 0.04 244.9); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86); --border:oklch(0.94 0.013 86 / 12%);
+            --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86); --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --brand:oklch(0.78 0.035 240); --chart-2:oklch(0.46 0.05 252.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .real { fill:var(--chart-2); }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 3; }
+    .split { fill:none; stroke:var(--brand); stroke-width:1.5; }
+    .brace { fill:none; stroke:var(--muted-foreground); }
+    .q { fill:var(--brand); font-weight:500; font-size:13px; }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="299" rx="16"/>
+
+  <text class="eyebrow" x="40" y="40">D = 4000 · BLOCK_D = 4096 · 96 PADDING LANES</text>
+
+  <!-- row labels -->
+  <g class="mono ink-2">
+    <text x="40" y="78">lane</text>
+    <text x="40" y="108">block</text>
+    <text x="40" y="146">mask</text>
+    <text x="40" y="176">loaded</text>
+  </g>
+
+  <!-- lane indices -->
+  <g class="mono" text-anchor="middle">
+    <text x="152" y="78">0</text>
+    <text x="200" y="78">1</text>
+    <text x="248" y="78">2</text>
+    <text x="344" y="78">3999</text>
+    <text x="424" y="78">4000</text>
+    <text x="472" y="78">4001</text>
+    <text x="568" y="78">4095</text>
+  </g>
+
+  <!-- the block -->
+  <rect class="real" x="130" y="90" width="44" height="28" rx="2"/>
+  <rect class="real" x="178" y="90" width="44" height="28" rx="2"/>
+  <rect class="real" x="226" y="90" width="44" height="28" rx="2"/>
+  <text x="296" y="108" text-anchor="middle">...</text>
+  <rect class="real" x="322" y="90" width="44" height="28" rx="2"/>
+  <rect class="pad" x="402.5" y="90.5" width="43" height="27" rx="2"/>
+  <rect class="pad" x="450.5" y="90.5" width="43" height="27" rx="2"/>
+  <text x="520" y="108" text-anchor="middle">...</text>
+  <rect class="pad" x="546.5" y="90.5" width="43" height="27" rx="2"/>
+  <path class="split" d="M384,64 V190"/>
+
+  <!-- mask and loaded value -->
+  <g class="mono" text-anchor="middle">
+    <text x="152" y="146">T</text><text x="200" y="146">T</text><text x="248" y="146">T</text>
+    <text x="296" y="146">...</text><text x="344" y="146">T</text>
+    <text x="424" y="146">F</text><text x="472" y="146">F</text>
+    <text x="520" y="146">...</text><text x="568" y="146">F</text>
+  </g>
+  <text x="248" y="176" text-anchor="middle">real values</text>
+  <text class="mono q" x="486" y="176" text-anchor="middle">other= ?</text>
+
+  <!-- what the reduction sees -->
+  <path class="brace" d="M130,200 V208 H590 V200"/>
+  <text class="ink-2" x="360" y="228" text-anchor="middle">tl.sum adds all 4096 lanes, padding included</text>
+  <path class="brace" d="M130,244 V252 H366 V244"/>
+  <text class="ink-2" x="248" y="272" text-anchor="middle">divide by D = 4000, the real lanes</text>
+
+  <!-- the question -->
+  <text class="eyebrow" x="630" y="78">ASK YOURSELF</text>
+  <text x="630" y="108">Masked loads read no</text>
+  <text x="630" y="128">memory, but the lanes</text>
+  <text x="630" y="148">still exist in the block.</text>
+  <text x="630" y="182">What value can padding</text>
+  <text x="630" y="202">hold so it adds nothing</text>
+  <text x="630" y="222">to a sum of squares?</text>
+</svg>

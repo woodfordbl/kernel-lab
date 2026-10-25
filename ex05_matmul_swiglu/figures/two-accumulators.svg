@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 540" width="880" height="540" role="img" aria-labelledby="t d">
+  <title id="t">Two accumulators, one x tile</title>
+  <desc id="d">The program owning one output tile walks along K. At each step it loads one x tile once and one tile from each of W_gate and W_up at the same offsets, and adds both products to two fp32 accumulators. The gate and up results exist only in registers. After the loop, the epilogue combines them into the out tile, which is the only thing written.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-3:oklch(0.79 0.045 152.8); --chart-line-3:oklch(0.55 0.081 152.8);
+          --chart-4:oklch(0.79 0.06 53.3); --chart-line-4:oklch(0.55 0.108 53.3);
+          --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-3:oklch(0.5 0.055 151); --chart-line-3:oklch(0.78 0.099 151);
+            --chart-4:oklch(0.52 0.065 46.8); --chart-line-4:oklch(0.78 0.117 46.8);
+            --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .code { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; white-space:pre; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .matrix { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .virtual { fill:var(--card); stroke:var(--muted-foreground); stroke-dasharray:4 4; }
+    .cut { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .edge { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .flow { fill:none; stroke:var(--muted-foreground); }
+    .x-strip { fill:var(--chart-2); }
+    .x { fill:var(--brand); }
+    .g-strip { fill:var(--chart-4); }
+    .g { fill:var(--chart-line-4); }
+    .u-strip { fill:var(--chart-3); }
+    .u { fill:var(--chart-line-3); }
+    .c { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="879" height="539" rx="16"/>
+
+  <!-- guides first, so tiles draw over them -->
+  <path class="edge" d="M220,350 H550 M220,394 H550 M350,230 V350 M400,230 V350 M550,230 V350 M600,230 V350"/>
+
+  <!-- W_gate: [K, F] -->
+  <rect class="matrix" x="260" y="70" width="160" height="160" rx="2"/>
+  <rect class="g-strip" x="350" y="70" width="50" height="160"/>
+  <path class="cut" d="M350,110 H400 M350,150 H400 M350,190 H400"/>
+  <rect class="g" x="350" y="110" width="50" height="40"/>
+  <g class="mono" text-anchor="middle">
+    <text x="375" y="94">G0</text>
+    <text class="on" x="375" y="134">G1</text>
+    <text x="375" y="174">G2</text>
+    <text x="375" y="214">G3</text>
+  </g>
+  <text class="title" x="270" y="94">W_gate</text>
+  <text class="mono ink-2" x="270" y="112">[K, F]</text>
+  <path class="axis" d="M260,56 H320"/><text class="meta" x="326" y="60">F</text>
+
+  <!-- W_up: [K, F] -->
+  <rect class="matrix" x="460" y="70" width="160" height="160" rx="2"/>
+  <rect class="u-strip" x="550" y="70" width="50" height="160"/>
+  <path class="cut" d="M550,110 H600 M550,150 H600 M550,190 H600"/>
+  <rect class="u" x="550" y="110" width="50" height="40"/>
+  <g class="mono" text-anchor="middle">
+    <text x="575" y="94">U0</text>
+    <text class="on" x="575" y="134">U1</text>
+    <text x="575" y="174">U2</text>
+    <text x="575" y="214">U3</text>
+  </g>
+  <text class="title" x="470" y="94">W_up</text>
+  <text class="mono ink-2" x="470" y="112">[K, F]</text>
+  <path class="axis" d="M460,56 H520"/><text class="meta" x="526" y="60">F</text>
+
+  <!-- x: [M, K] -->
+  <rect class="matrix" x="60" y="290" width="160" height="150" rx="2"/>
+  <rect class="x-strip" x="60" y="350" width="160" height="44"/>
+  <path class="cut" d="M100,350 V394 M140,350 V394 M180,350 V394"/>
+  <rect class="x" x="100" y="350" width="40" height="44"/>
+  <g class="mono" text-anchor="middle">
+    <text x="80" y="376">x0</text>
+    <text class="on" x="120" y="376">x1</text>
+    <text x="160" y="376">x2</text>
+    <text x="200" y="376">x3</text>
+  </g>
+  <text class="title" x="70" y="314">x</text>
+  <text class="mono ink-2" x="70" y="332">[M, K]</text>
+  <path class="axis" d="M60,456 H120"/><text class="meta" x="126" y="460">K</text>
+  <path class="axis" d="M46,290 V350"/><text class="meta" x="41" y="366" text-anchor="middle">M</text>
+
+  <!-- gate and up: registers only -->
+  <rect class="virtual" x="260" y="290" width="160" height="150" rx="2"/>
+  <text class="title" x="270" y="314">gate</text>
+  <text class="mono ink-2" x="270" y="332">[M, F]</text>
+  <text class="meta" x="270" y="428">never stored</text>
+  <rect class="virtual" x="460" y="290" width="160" height="150" rx="2"/>
+  <text class="title" x="470" y="314">up</text>
+  <text class="mono ink-2" x="470" y="332">[M, F]</text>
+  <text class="meta" x="470" y="428">never stored</text>
+
+  <!-- out: [M, F] -->
+  <rect class="matrix" x="680" y="290" width="160" height="150" rx="2"/>
+  <text class="title" x="690" y="314">out</text>
+  <text class="mono ink-2" x="690" y="332">[M, F]</text>
+
+  <!-- epilogue flow -->
+  <path class="flow" d="M375,394 V470 H795 M575,394 V470"/>
+  <path class="axis" d="M795,470 V399"/>
+
+  <rect class="c" x="350" y="350" width="50" height="44"/>
+  <text class="on" x="375" y="369" text-anchor="middle">acc_g</text>
+  <text class="on" x="375" y="385" text-anchor="middle">fp32</text>
+  <rect class="c" x="550" y="350" width="50" height="44"/>
+  <text class="on" x="575" y="369" text-anchor="middle">acc_u</text>
+  <text class="on" x="575" y="385" text-anchor="middle">fp32</text>
+  <rect class="c" x="770" y="350" width="50" height="44"/>
+  <text class="on" x="795" y="369" text-anchor="middle">out</text>
+  <text class="on" x="795" y="385" text-anchor="middle">fp16</text>
+
+  <text class="eyebrow" x="420" y="494">AFTER THE LOOP · EPILOGUE</text>
+  <text class="code" x="420" y="516">out_tile = SiLU(acc_gate) * acc_up</text>
+  <text class="meta" x="787" y="428" text-anchor="end">cast, store</text>
+
+  <!-- top left: the step -->
+  <text class="eyebrow" x="28" y="86">ONE PROGRAM · STEP 2 OF 4</text>
+  <text class="code" x="28" y="118">acc_gate += dot(x1, G1)</text>
+  <text class="code" x="28" y="140">acc_up   += dot(x1, U1)</text>
+  <text class="ink-2" x="28" y="180">x1 is loaded once and</text>
+  <text class="ink-2" x="28" y="199">feeds both dots.</text>
+
+  <!-- right: per step -->
+  <text class="eyebrow" x="652" y="86">PER K STEP</text>
+  <rect class="x" x="652" y="104" width="14" height="14" rx="2"/>
+  <text x="676" y="116">load one x tile</text>
+  <rect class="g" x="652" y="134" width="14" height="14" rx="2"/>
+  <text x="676" y="146">load one W_gate tile</text>
+  <rect class="u" x="652" y="164" width="14" height="14" rx="2"/>
+  <text x="676" y="176">load one W_up tile</text>
+  <text class="meta" x="676" y="194">same offsets, same mask</text>
+  <rect class="c" x="652" y="210" width="14" height="14" rx="2"/>
+  <text x="676" y="222">two multiply-adds</text>
+</svg>

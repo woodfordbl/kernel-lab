@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 410" width="860" height="410" role="img" aria-labelledby="t d">
+  <title id="t">Row-major vs grouped tile order</title>
+  <desc id="d">Two 4 by 4 grids of C tiles numbered by program id. If programs 0 to 3 run at the same time, row-major order needs one A row strip and four B column strips, while grouped order with GROUP_M 2 needs two A strips and two B strips.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-4:oklch(0.79 0.06 53.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-4:oklch(0.52 0.065 46.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .strong { font-weight:500; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .num { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; fill:var(--ink-2); }
+    .num.hot { fill:var(--foreground); font-weight:500; }
+    .cell { fill:var(--card); stroke:var(--border); }
+    .cell.hot { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .bar { fill:var(--muted); stroke:var(--border); }
+    .a { fill:var(--chart-2); }
+    .b { fill:var(--chart-4); }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="859" height="409" rx="16"/>
+
+  <!-- ===== Panel 1: row-major ===== -->
+  <g transform="translate(40,0)">
+    <text class="eyebrow" x="0" y="40">ROW-MAJOR ORDER</text>
+    <rect class="b" x="40" y="66" width="50" height="16"/>
+    <rect class="b" x="90" y="66" width="50" height="16"/>
+    <rect class="b" x="140" y="66" width="50" height="16"/>
+    <rect class="b" x="190" y="66" width="50" height="16"/>
+    <text class="meta" x="252" y="79">B strips</text>
+    <rect class="a" x="16" y="94" width="16" height="50"/>
+    <rect class="bar" x="16" y="144" width="16" height="50"/>
+    <rect class="bar" x="16" y="194" width="16" height="50"/>
+    <rect class="bar" x="16" y="244" width="16" height="50"/>
+    <text class="meta" x="8" y="314">A strips</text>
+    <g text-anchor="middle">
+      <rect class="cell hot" x="40" y="94" width="50" height="50"/><text class="num hot" x="65" y="124">0</text>
+      <rect class="cell hot" x="90" y="94" width="50" height="50"/><text class="num hot" x="115" y="124">1</text>
+      <rect class="cell hot" x="140" y="94" width="50" height="50"/><text class="num hot" x="165" y="124">2</text>
+      <rect class="cell hot" x="190" y="94" width="50" height="50"/><text class="num hot" x="215" y="124">3</text>
+      <rect class="cell" x="40" y="144" width="50" height="50"/><text class="num" x="65" y="174">4</text>
+      <rect class="cell" x="90" y="144" width="50" height="50"/><text class="num" x="115" y="174">5</text>
+      <rect class="cell" x="140" y="144" width="50" height="50"/><text class="num" x="165" y="174">6</text>
+      <rect class="cell" x="190" y="144" width="50" height="50"/><text class="num" x="215" y="174">7</text>
+      <rect class="cell" x="40" y="194" width="50" height="50"/><text class="num" x="65" y="224">8</text>
+      <rect class="cell" x="90" y="194" width="50" height="50"/><text class="num" x="115" y="224">9</text>
+      <rect class="cell" x="140" y="194" width="50" height="50"/><text class="num" x="165" y="224">10</text>
+      <rect class="cell" x="190" y="194" width="50" height="50"/><text class="num" x="215" y="224">11</text>
+      <rect class="cell" x="40" y="244" width="50" height="50"/><text class="num" x="65" y="274">12</text>
+      <rect class="cell" x="90" y="244" width="50" height="50"/><text class="num" x="115" y="274">13</text>
+      <rect class="cell" x="140" y="244" width="50" height="50"/><text class="num" x="165" y="274">14</text>
+      <rect class="cell" x="190" y="244" width="50" height="50"/><text class="num" x="215" y="274">15</text>
+    </g>
+    <text class="ink-2" x="0" y="350">Programs 0–3 need 1 A strip + 4 B strips</text>
+    <text class="strong" x="0" y="376">5 strips from memory</text>
+  </g>
+
+  <!-- ===== Panel 2: grouped ===== -->
+  <g transform="translate(460,0)">
+    <text class="eyebrow" x="0" y="40">GROUPED ORDER · GROUP_M = 2</text>
+    <rect class="b" x="40" y="66" width="50" height="16"/>
+    <rect class="b" x="90" y="66" width="50" height="16"/>
+    <rect class="bar" x="140" y="66" width="50" height="16"/>
+    <rect class="bar" x="190" y="66" width="50" height="16"/>
+    <text class="meta" x="252" y="79">B strips</text>
+    <rect class="a" x="16" y="94" width="16" height="50"/>
+    <rect class="a" x="16" y="144" width="16" height="50"/>
+    <rect class="bar" x="16" y="194" width="16" height="50"/>
+    <rect class="bar" x="16" y="244" width="16" height="50"/>
+    <text class="meta" x="8" y="314">A strips</text>
+    <g text-anchor="middle">
+      <rect class="cell hot" x="40" y="94" width="50" height="50"/><text class="num hot" x="65" y="124">0</text>
+      <rect class="cell hot" x="90" y="94" width="50" height="50"/><text class="num hot" x="115" y="124">2</text>
+      <rect class="cell" x="140" y="94" width="50" height="50"/><text class="num" x="165" y="124">4</text>
+      <rect class="cell" x="190" y="94" width="50" height="50"/><text class="num" x="215" y="124">6</text>
+      <rect class="cell hot" x="40" y="144" width="50" height="50"/><text class="num hot" x="65" y="174">1</text>
+      <rect class="cell hot" x="90" y="144" width="50" height="50"/><text class="num hot" x="115" y="174">3</text>
+      <rect class="cell" x="140" y="144" width="50" height="50"/><text class="num" x="165" y="174">5</text>
+      <rect class="cell" x="190" y="144" width="50" height="50"/><text class="num" x="215" y="174">7</text>
+      <rect class="cell" x="40" y="194" width="50" height="50"/><text class="num" x="65" y="224">8</text>
+      <rect class="cell" x="90" y="194" width="50" height="50"/><text class="num" x="115" y="224">10</text>
+      <rect class="cell" x="140" y="194" width="50" height="50"/><text class="num" x="165" y="224">12</text>
+      <rect class="cell" x="190" y="194" width="50" height="50"/><text class="num" x="215" y="224">14</text>
+      <rect class="cell" x="40" y="244" width="50" height="50"/><text class="num" x="65" y="274">9</text>
+      <rect class="cell" x="90" y="244" width="50" height="50"/><text class="num" x="115" y="274">11</text>
+      <rect class="cell" x="140" y="244" width="50" height="50"/><text class="num" x="165" y="274">13</text>
+      <rect class="cell" x="190" y="244" width="50" height="50"/><text class="num" x="215" y="274">15</text>
+    </g>
+    <text class="ink-2" x="0" y="350">Programs 0–3 need 2 A strips + 2 B strips</text>
+    <text class="strong" x="0" y="376">4 strips, same work</text>
+  </g>
+</svg>

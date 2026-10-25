@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 450" width="860" height="450" role="img" aria-labelledby="t d">
+  <title id="t">Grouped GEMM: one expert per row tile</title>
+  <desc id="d">The 12 sorted rows form three tiles of BLOCK_M 4. Program pid_m reads expert_ids[pid_m] and uses that expert's weight slice: tile 0 uses W[0], tile 1 uses W[1], tile 2 uses W[2]. An expert with no pairs gets no tile and its weights are never read.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-3:oklch(0.79 0.045 152.8);
+          --chart-line-3:oklch(0.55 0.081 152.8); --chart-4:oklch(0.79 0.06 53.3);
+          --chart-line-4:oklch(0.55 0.108 53.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-3:oklch(0.5 0.055 151);
+            --chart-line-3:oklch(0.78 0.099 151); --chart-4:oklch(0.52 0.065 46.8);
+            --chart-line-4:oklch(0.78 0.117 46.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .strong { font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 3; }
+    .e0 { fill:var(--chart-2); }
+    .e1 { fill:var(--chart-4); }
+    .e2 { fill:var(--chart-3); }
+    .e0s { fill:none; stroke:var(--brand); stroke-width:1.5; }
+    .e1s { fill:none; stroke:var(--chart-line-4); stroke-width:1.5; }
+    .e2s { fill:none; stroke:var(--chart-line-3); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="859" height="449" rx="16"/>
+  <text class="eyebrow" x="60" y="44">SORTED ROWS · BLOCK_M = 4</text>
+  <text class="eyebrow" x="560" y="44">EXPERT WEIGHTS W [E, K, N]</text>
+  <rect class="e0" x="60" y="70" width="150" height="22"/><text class="mono" x="70" y="85">pair 0</text>
+  <rect class="e0" x="60" y="92" width="150" height="22"/><text class="mono" x="70" y="107">pair 4</text>
+  <rect class="pad" x="60.5" y="114.5" width="149" height="21"/><text class="mono meta" x="70" y="129">padding (6)</text>
+  <rect class="pad" x="60.5" y="136.5" width="149" height="21"/><text class="mono meta" x="70" y="151">padding (6)</text>
+  <rect class="e0s" x="60" y="70" width="150" height="88" rx="2"/>
+  <text class="strong" x="228" y="110">pid_m = 0</text><text class="mono ink-2" x="228" y="128">expert_ids[0] = 0</text>
+  <rect class="e1" x="60" y="180" width="150" height="22"/><text class="mono" x="70" y="195">pair 3</text>
+  <rect class="pad" x="60.5" y="202.5" width="149" height="21"/><text class="mono meta" x="70" y="217">padding (6)</text>
+  <rect class="pad" x="60.5" y="224.5" width="149" height="21"/><text class="mono meta" x="70" y="239">padding (6)</text>
+  <rect class="pad" x="60.5" y="246.5" width="149" height="21"/><text class="mono meta" x="70" y="261">padding (6)</text>
+  <rect class="e1s" x="60" y="180" width="150" height="88" rx="2"/>
+  <text class="strong" x="228" y="220">pid_m = 1</text><text class="mono ink-2" x="228" y="238">expert_ids[1] = 1</text>
+  <rect class="e2" x="60" y="290" width="150" height="22"/><text class="mono" x="70" y="305">pair 1</text>
+  <rect class="e2" x="60" y="312" width="150" height="22"/><text class="mono" x="70" y="327">pair 2</text>
+  <rect class="e2" x="60" y="334" width="150" height="22"/><text class="mono" x="70" y="349">pair 5</text>
+  <rect class="pad" x="60.5" y="356.5" width="149" height="21"/><text class="mono meta" x="70" y="371">padding (6)</text>
+  <rect class="e2s" x="60" y="290" width="150" height="88" rx="2"/>
+  <text class="strong" x="228" y="330">pid_m = 2</text><text class="mono ink-2" x="228" y="348">expert_ids[2] = 2</text>
+  <rect class="e0" x="560" y="70" width="240" height="56" rx="2"/><text class="title" x="574" y="94">W[0]</text><text class="mono" x="574" y="112">w + 0 * stride_we</text>
+  <path class="axis" d="M360,114 C440,114 480,98.0 554,98.0"/>
+  <rect class="e1" x="560" y="144" width="240" height="56" rx="2"/><text class="title" x="574" y="168">W[1]</text><text class="mono" x="574" y="186">w + 1 * stride_we</text>
+  <path class="axis" d="M360,224 C440,224 480,172.0 554,172.0"/>
+  <rect class="e2" x="560" y="218" width="240" height="56" rx="2"/><text class="title" x="574" y="242">W[2]</text><text class="mono" x="574" y="260">w + 2 * stride_we</text>
+  <path class="axis" d="M360,334 C440,334 480,246.0 554,246.0"/>
+  <rect class="pad" x="560.5" y="292.5" width="239" height="55" rx="2"/><text class="title" x="574" y="316">W[3]</text><text class="meta" x="574" y="334">an expert with no pairs: never read</text>
+  <text class="ink-2" x="60" y="410">One launch covers all three tiles. Each program reads its expert id, then runs</text>
+  <text class="ink-2" x="60" y="430">exercise 4's K loop on that expert's weight slice.</text>
+</svg>

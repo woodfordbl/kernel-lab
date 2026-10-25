@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 428" width="840" height="428" role="img" aria-labelledby="t d">
+  <title id="t">The GPU memory hierarchy on a T4</title>
+  <desc id="d">A T4 has 40 streaming multiprocessors. Each SM has its own registers (256 KB) and shared memory (up to 64 KB), which are fast and tiny. All SMs share a 4 MB L2 cache. Below the chip sits 16 GB of global memory, reached at about 320 GB/s with roughly 400 to 800 ns of latency per access.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --brand-muted:oklch(0.935 0.0096 240); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --brand-muted:oklch(0.3 0.014 240); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .box { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .cell { fill:var(--muted); }
+    .link { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .wire { fill:none; stroke:var(--brand); stroke-width:1.5; marker-start:url(#tip-b); marker-end:url(#tip-b); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+  </style>
+  <defs>
+    <marker id="tip-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--brand); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="427" rx="16"/>
+  <g transform="translate(0,-12)">
+
+  <!-- the chip -->
+  <rect class="box" x="40" y="48" width="520" height="252" rx="6"/>
+  <text class="eyebrow" x="56" y="74">GPU CHIP · 40 SMS ON A T4</text>
+
+  <!-- SMs -->
+  <g>
+    <rect class="box" x="56" y="90" width="100" height="116" rx="6"/>
+    <rect class="box" x="168" y="90" width="100" height="116" rx="6"/>
+    <rect class="box" x="280" y="90" width="100" height="116" rx="6"/>
+    <rect class="box" x="444" y="90" width="100" height="116" rx="6"/>
+  </g>
+  <g text-anchor="middle">
+    <text class="title" x="106" y="114">SM 0</text>
+    <text class="title" x="218" y="114">SM 1</text>
+    <text class="title" x="330" y="114">SM 2</text>
+    <text class="title" x="494" y="114">SM 39</text>
+    <text class="ink-2" x="412" y="152">. . .</text>
+  </g>
+  <g>
+    <rect class="cell" x="66" y="126" width="80" height="30" rx="2"/>
+    <rect class="cell" x="66" y="164" width="80" height="30" rx="2"/>
+    <rect class="cell" x="178" y="126" width="80" height="30" rx="2"/>
+    <rect class="cell" x="178" y="164" width="80" height="30" rx="2"/>
+    <rect class="cell" x="290" y="126" width="80" height="30" rx="2"/>
+    <rect class="cell" x="290" y="164" width="80" height="30" rx="2"/>
+    <rect class="cell" x="454" y="126" width="80" height="30" rx="2"/>
+    <rect class="cell" x="454" y="164" width="80" height="30" rx="2"/>
+  </g>
+  <g class="mono" text-anchor="middle">
+    <text x="106" y="145">regs</text><text x="106" y="183">smem</text>
+    <text x="218" y="145">regs</text><text x="218" y="183">smem</text>
+    <text x="330" y="145">regs</text><text x="330" y="183">smem</text>
+    <text x="494" y="145">regs</text><text x="494" y="183">smem</text>
+  </g>
+
+  <!-- SMs to L2 -->
+  <path class="guide" d="M106,206 V224 M218,206 V224 M330,206 V224 M494,206 V224"/>
+
+  <!-- L2 -->
+  <rect class="cell" x="56" y="224" width="488" height="56" rx="6"/>
+  <text class="title" x="300" y="248" text-anchor="middle">L2 cache</text>
+  <text class="mono" x="300" y="267" text-anchor="middle">4 MB</text>
+
+  <!-- the bottleneck link -->
+  <path class="wire" d="M300,304 V350"/>
+  <rect class="link" x="316" y="314" width="96" height="26" rx="6"/>
+  <text class="mono" x="364" y="331" text-anchor="middle" style="font-size:13px">~320 GB/s</text>
+
+  <!-- global memory -->
+  <rect class="box" x="40" y="354" width="520" height="62" rx="6"/>
+  <text class="title" x="300" y="380" text-anchor="middle">Global memory: GDDR6 on a T4, HBM on an H100</text>
+  <text class="mono" x="300" y="400" text-anchor="middle">16 GB</text>
+
+  <!-- right column -->
+  <text class="eyebrow" x="592" y="114">FAST, TINY, PRIVATE</text>
+  <text x="592" y="140">Per SM: 256 KB of registers</text>
+  <text x="592" y="159">and up to 64 KB of shared</text>
+  <text x="592" y="178">memory (smem)</text>
+  <text class="meta" x="592" y="200">an H100 has 132 SMs</text>
+
+  <text class="eyebrow" x="592" y="240">SHARED BY ALL SMS</text>
+  <text x="592" y="266">Data one SM reads can be</text>
+  <text x="592" y="285">served to another from L2</text>
+
+  <text class="eyebrow" x="592" y="330">BIG, SLOW</text>
+  <text x="592" y="356">Holds your tensors. Each</text>
+  <text x="592" y="375">access takes roughly 400</text>
+  <text x="592" y="394">to 800 ns to come back</text>
+  </g>
+</svg>

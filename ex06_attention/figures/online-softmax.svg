@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 470" width="840" height="470" role="img" aria-labelledby="t d">
+  <title id="t">Online softmax: the worked example</title>
+  <desc id="d">Scores 1, 3, 2, 5 with values 10, 20, 30, 40, in two chunks. After chunk 1 the max is 3 and the weights exp(s - 3) are 0.1353 and 1.0, so l is 1.1353 and acc is 21.353. Chunk 2 raises the max to 5, so the old weights shrink by alpha = e^(3-5) = 0.1353 to 0.0183 and 0.1353, and the new weights are 0.0498 and 1.0. Then l is 1.2034, acc is 44.383 and O = acc / l = 36.88.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-4:oklch(0.79 0.06 53.3);
+          --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-4:oklch(0.52 0.065 46.8);
+            --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .c1 { fill:var(--chart-2); }
+    .c2 { fill:var(--chart-4); }
+    .todo { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .ghost { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .base { stroke:var(--muted-foreground); }
+    .divider { stroke:var(--border); }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .res { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="469" rx="16"/>
+  <!-- bar height = weight * 140, baseline y = 260 -->
+
+  <!-- ===== after chunk 1 ===== -->
+  <text class="eyebrow" x="40" y="40">AFTER CHUNK 1 · m = 3</text>
+  <text class="ink-2" x="40" y="66">weights exp(s - 3) of the keys seen so far</text>
+
+  <rect class="c1" x="60" y="241.1" width="48" height="18.9" rx="2"/>
+  <rect class="c1" x="140" y="120" width="48" height="140" rx="2"/>
+  <rect class="todo" x="220" y="236" width="48" height="24" rx="2"/>
+  <rect class="todo" x="300" y="236" width="48" height="24" rx="2"/>
+  <path class="base" d="M48,260.5 H360"/>
+  <g class="mono" text-anchor="middle">
+    <text x="84" y="234">0.1353</text>
+    <text x="164" y="113">1.0</text>
+    <text class="meta" x="284" y="228">not seen yet</text>
+  </g>
+  <g class="mono ink-2" text-anchor="middle">
+    <text x="84" y="280">s = 1</text><text x="84" y="296">v = 10</text>
+    <text x="164" y="280">s = 3</text><text x="164" y="296">v = 20</text>
+    <text x="244" y="280">s = 2</text><text x="244" y="296">v = 30</text>
+    <text x="324" y="280">s = 5</text><text x="324" y="296">v = 40</text>
+  </g>
+  <g class="mono">
+    <text x="40" y="340" style="font-size:13px">l</text><text x="72" y="340" style="font-size:13px">= 0.1353 + 1.0 = 1.1353</text>
+    <text x="40" y="362" style="font-size:13px">acc</text><text x="72" y="362" style="font-size:13px">= 0.1353*10 + 1.0*20 = 21.353</text>
+  </g>
+
+  <line class="divider" x1="420" y1="24" x2="420" y2="446"/>
+
+  <!-- ===== after chunk 2 ===== -->
+  <text class="eyebrow" x="456" y="40">AFTER CHUNK 2 · m = 5</text>
+  <text class="ink-2" x="456" y="66">old weights shrink by alpha = e^(3-5) = 0.1353</text>
+
+  <!-- old bars: ghost at the old height, fill at the rescaled height -->
+  <rect class="ghost" x="476" y="241.1" width="48" height="18.9" rx="2"/>
+  <rect class="c1" x="476" y="257.4" width="48" height="2.6" rx="1"/>
+  <rect class="ghost" x="556" y="120" width="48" height="140" rx="2"/>
+  <rect class="c1" x="556" y="241.1" width="48" height="18.9" rx="2"/>
+  <path class="axis" d="M580,128 V200"/>
+  <!-- new chunk -->
+  <rect class="c2" x="636" y="253" width="48" height="7" rx="2"/>
+  <rect class="c2" x="716" y="120" width="48" height="140" rx="2"/>
+  <path class="base" d="M464,260.5 H776"/>
+  <g class="mono" text-anchor="middle">
+    <text x="500" y="234">0.0183</text>
+    <text x="580" y="234">0.1353</text>
+    <text x="660" y="246">0.0498</text>
+    <text x="740" y="113">1.0</text>
+  </g>
+  <g class="mono ink-2" text-anchor="middle">
+    <text x="500" y="280">s = 1</text><text x="500" y="296">v = 10</text>
+    <text x="580" y="280">s = 3</text><text x="580" y="296">v = 20</text>
+    <text x="660" y="280">s = 2</text><text x="660" y="296">v = 30</text>
+    <text x="740" y="280">s = 5</text><text x="740" y="296">v = 40</text>
+  </g>
+  <g class="mono">
+    <text x="456" y="340" style="font-size:13px">l</text><text x="488" y="340" style="font-size:13px">= 1.1353*0.1353 + 0.0498 + 1.0</text>
+    <text x="488" y="358" style="font-size:13px">= 1.2034</text>
+    <text x="456" y="380" style="font-size:13px">acc</text><text x="488" y="380" style="font-size:13px">= 21.353*0.1353 + 0.0498*30 + 1.0*40</text>
+    <text x="488" y="398" style="font-size:13px">= 44.383</text>
+  </g>
+  <rect class="res" x="456" y="416" width="184" height="32" rx="6"/>
+  <text class="on" x="548" y="437" text-anchor="middle">O = acc / l = 36.88</text>
+
+  <!-- legend -->
+  <rect class="c1" x="40" y="426" width="14" height="14" rx="2"/>
+  <text class="meta" x="62" y="437">chunk 1</text>
+  <rect class="c2" x="130" y="426" width="14" height="14" rx="2"/>
+  <text class="meta" x="152" y="437">chunk 2</text>
+  <rect class="ghost" x="220" y="426" width="14" height="14" rx="2"/>
+  <text class="meta" x="242" y="437">before rescaling</text>
+</svg>

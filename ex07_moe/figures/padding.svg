@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 430" width="860" height="430" role="img" aria-labelledby="t d">
+  <title id="t">Padding waste vs tokens per expert</title>
+  <desc id="d">At T = 32, 128 pairs spread over about 56 experts, about 2.3 rows each: a BLOCK_M 16 tile is about 86% padding and a BLOCK_M 64 tile about 96%. At T = 4096, about 256 rows per expert fill 4 BLOCK_M 64 tiles with almost no padding.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --muted-foreground:oklch(0.5 0.005 106);
+          --chart-2:oklch(0.82 0.04 244.9); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --chart-2:oklch(0.46 0.05 252.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .strong { font-weight:500; }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 3; }
+    .e0 { fill:var(--chart-2); }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="859" height="429" rx="16"/>
+  <text class="eyebrow" x="40" y="44">T = 32 (DECODE) · 128 PAIRS OVER ~56 TOUCHED EXPERTS</text>
+  <text class="meta" x="40" y="64">~2.3 rows per expert. One expert's tile:</text>
+  <text class="mono" x="40" y="92">BLOCK_M = 16</text>
+  <rect class="pad" x="40.5" y="102.5" width="47" height="27" rx="2"/><rect class="e0" x="40" y="102" width="6.9" height="28" rx="2"/>
+  <text class="strong" x="102" y="121">~86% padding</text>
+  <text class="mono" x="40" y="160">BLOCK_M = 64</text>
+  <rect class="pad" x="40.5" y="170.5" width="191" height="27" rx="2"/><rect class="e0" x="40" y="170" width="6.9" height="28" rx="2"/>
+  <text class="strong" x="246" y="189">~96% padding</text>
+  <path class="guide" d="M40,222 H820"/>
+  <text class="eyebrow" x="40" y="252">T = 4096 (PREFILL) · 16384 PAIRS OVER 64 EXPERTS</text>
+  <text class="meta" x="40" y="272">~256 rows per expert. One expert's tiles:</text>
+  <text class="mono" x="40" y="300">BLOCK_M = 64</text><text class="strong" x="160" y="300">4 full tiles, almost no padding</text>
+  <rect class="e0" x="40" y="310" width="192" height="28" rx="2"/>
+  <rect class="e0" x="236" y="310" width="192" height="28" rx="2"/>
+  <rect class="e0" x="432" y="310" width="192" height="28" rx="2"/>
+  <rect class="e0" x="628" y="310" width="192" height="28" rx="2"/>
+  <rect class="e0" x="40" y="369" width="13" height="13" rx="2"/><text x="62" y="380">rows with a real pair</text>
+  <rect class="pad" x="230.5" y="369.5" width="12" height="12" rx="2"/><text x="252" y="380">padding rows: full tensor-core work, no memory traffic</text>
+  <text class="meta" x="40" y="406">Drawn to scale, 3 px per row.</text>
+</svg>

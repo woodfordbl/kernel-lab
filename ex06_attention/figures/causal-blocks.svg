@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 480" width="840" height="480" role="img" aria-labelledby="t d">
+  <title id="t">Causal attention: which key blocks each query block visits</title>
+  <desc id="d">A 4 by 4 grid of query blocks against key blocks. Blocks below the diagonal are full and need no mask. Diagonal blocks need a per-element mask. Blocks above the diagonal are skipped because the loop stops at hi. Zoomed in, a diagonal block keeps scores where key index is at most query index and sets the rest to minus infinity. 10 of the 16 blocks are computed.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240);
+          --chart-3:oklch(0.79 0.045 152.8); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240);
+            --chart-3:oklch(0.5 0.055 151); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .full, .keep { fill:var(--chart-3); }
+    .diag { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .skip { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .masked { fill:var(--muted); }
+    .keep, .masked { stroke:var(--background); stroke-width:2; }
+    .zoombox { fill:none; stroke:var(--brand); stroke-width:1.5; }
+    .hi { stroke:var(--brand); stroke-width:2; }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="479" rx="16"/>
+
+  <text class="eyebrow" x="40" y="40">CAUSAL · 4 QUERY BLOCKS x 4 KEY BLOCKS, BLOCK_M = BLOCK_N</text>
+
+  <!-- block map: rows = query blocks, columns = key blocks -->
+  <path class="axis" d="M100,56 H160"/><text class="meta" x="166" y="60">key blocks</text>
+  <path class="axis" d="M58,90 V150"/><text class="meta" x="58" y="168" text-anchor="middle">query</text><text class="meta" x="58" y="184" text-anchor="middle">blocks</text>
+  <g class="mono ink-2" text-anchor="middle">
+    <text x="132" y="82">0</text>
+    <text x="196" y="82">1</text>
+    <text x="260" y="82">2</text>
+    <text x="324" y="82">3</text>
+    <text x="88" y="126">0</text>
+    <text x="88" y="190">1</text>
+    <text x="88" y="254">2</text>
+    <text x="88" y="318">3</text>
+  </g>
+  <rect class="diag" x="102" y="92" width="60" height="60" rx="2"/>
+  <rect class="skip" x="166" y="92" width="60" height="60" rx="2"/>
+  <rect class="skip" x="230" y="92" width="60" height="60" rx="2"/>
+  <rect class="skip" x="294" y="92" width="60" height="60" rx="2"/>
+  <rect class="full" x="102" y="156" width="60" height="60" rx="2"/>
+  <rect class="diag" x="166" y="156" width="60" height="60" rx="2"/>
+  <rect class="skip" x="230" y="156" width="60" height="60" rx="2"/>
+  <rect class="skip" x="294" y="156" width="60" height="60" rx="2"/>
+  <rect class="full" x="102" y="220" width="60" height="60" rx="2"/>
+  <rect class="full" x="166" y="220" width="60" height="60" rx="2"/>
+  <rect class="diag" x="230" y="220" width="60" height="60" rx="2"/>
+  <rect class="skip" x="294" y="220" width="60" height="60" rx="2"/>
+  <rect class="full" x="102" y="284" width="60" height="60" rx="2"/>
+  <rect class="full" x="166" y="284" width="60" height="60" rx="2"/>
+  <rect class="full" x="230" y="284" width="60" height="60" rx="2"/>
+  <rect class="diag" x="294" y="284" width="60" height="60" rx="2"/>
+
+  <!-- hi for query block 2 -->
+  <path class="hi" d="M292,212 V288"/>
+  <path class="guide" d="M292,290 V360"/>
+  <text class="mono" x="292" y="376" text-anchor="middle">hi</text>
+  <text class="meta" x="292" y="392" text-anchor="middle">where query block 2 stops</text>
+
+  <!-- zoom guides -->
+  <path class="guide" d="M292,218 L560,110 M292,282 L560,270"/>
+
+  <!-- zoomed diagonal block: 8 x 8 elements -->
+  <text class="eyebrow" x="560" y="82">DIAGONAL BLOCK 2, ZOOMED</text>
+  <path class="axis" d="M560,100 H620"/><text class="meta" x="626" y="104">keys</text>
+  <path class="axis" d="M546,110 V170"/><text class="meta" x="546" y="188" text-anchor="middle">q</text>
+  <rect class="keep" x="560" y="110" width="20" height="20"/>
+  <rect class="masked" x="580" y="110" width="20" height="20"/>
+  <rect class="masked" x="600" y="110" width="20" height="20"/>
+  <rect class="masked" x="620" y="110" width="20" height="20"/>
+  <rect class="masked" x="640" y="110" width="20" height="20"/>
+  <rect class="masked" x="660" y="110" width="20" height="20"/>
+  <rect class="masked" x="680" y="110" width="20" height="20"/>
+  <rect class="masked" x="700" y="110" width="20" height="20"/>
+  <rect class="keep" x="560" y="130" width="20" height="20"/>
+  <rect class="keep" x="580" y="130" width="20" height="20"/>
+  <rect class="masked" x="600" y="130" width="20" height="20"/>
+  <rect class="masked" x="620" y="130" width="20" height="20"/>
+  <rect class="masked" x="640" y="130" width="20" height="20"/>
+  <rect class="masked" x="660" y="130" width="20" height="20"/>
+  <rect class="masked" x="680" y="130" width="20" height="20"/>
+  <rect class="masked" x="700" y="130" width="20" height="20"/>
+  <rect class="keep" x="560" y="150" width="20" height="20"/>
+  <rect class="keep" x="580" y="150" width="20" height="20"/>
+  <rect class="keep" x="600" y="150" width="20" height="20"/>
+  <rect class="masked" x="620" y="150" width="20" height="20"/>
+  <rect class="masked" x="640" y="150" width="20" height="20"/>
+  <rect class="masked" x="660" y="150" width="20" height="20"/>
+  <rect class="masked" x="680" y="150" width="20" height="20"/>
+  <rect class="masked" x="700" y="150" width="20" height="20"/>
+  <rect class="keep" x="560" y="170" width="20" height="20"/>
+  <rect class="keep" x="580" y="170" width="20" height="20"/>
+  <rect class="keep" x="600" y="170" width="20" height="20"/>
+  <rect class="keep" x="620" y="170" width="20" height="20"/>
+  <rect class="masked" x="640" y="170" width="20" height="20"/>
+  <rect class="masked" x="660" y="170" width="20" height="20"/>
+  <rect class="masked" x="680" y="170" width="20" height="20"/>
+  <rect class="masked" x="700" y="170" width="20" height="20"/>
+  <rect class="keep" x="560" y="190" width="20" height="20"/>
+  <rect class="keep" x="580" y="190" width="20" height="20"/>
+  <rect class="keep" x="600" y="190" width="20" height="20"/>
+  <rect class="keep" x="620" y="190" width="20" height="20"/>
+  <rect class="keep" x="640" y="190" width="20" height="20"/>
+  <rect class="masked" x="660" y="190" width="20" height="20"/>
+  <rect class="masked" x="680" y="190" width="20" height="20"/>
+  <rect class="masked" x="700" y="190" width="20" height="20"/>
+  <rect class="keep" x="560" y="210" width="20" height="20"/>
+  <rect class="keep" x="580" y="210" width="20" height="20"/>
+  <rect class="keep" x="600" y="210" width="20" height="20"/>
+  <rect class="keep" x="620" y="210" width="20" height="20"/>
+  <rect class="keep" x="640" y="210" width="20" height="20"/>
+  <rect class="keep" x="660" y="210" width="20" height="20"/>
+  <rect class="masked" x="680" y="210" width="20" height="20"/>
+  <rect class="masked" x="700" y="210" width="20" height="20"/>
+  <rect class="keep" x="560" y="230" width="20" height="20"/>
+  <rect class="keep" x="580" y="230" width="20" height="20"/>
+  <rect class="keep" x="600" y="230" width="20" height="20"/>
+  <rect class="keep" x="620" y="230" width="20" height="20"/>
+  <rect class="keep" x="640" y="230" width="20" height="20"/>
+  <rect class="keep" x="660" y="230" width="20" height="20"/>
+  <rect class="keep" x="680" y="230" width="20" height="20"/>
+  <rect class="masked" x="700" y="230" width="20" height="20"/>
+  <rect class="keep" x="560" y="250" width="20" height="20"/>
+  <rect class="keep" x="580" y="250" width="20" height="20"/>
+  <rect class="keep" x="600" y="250" width="20" height="20"/>
+  <rect class="keep" x="620" y="250" width="20" height="20"/>
+  <rect class="keep" x="640" y="250" width="20" height="20"/>
+  <rect class="keep" x="660" y="250" width="20" height="20"/>
+  <rect class="keep" x="680" y="250" width="20" height="20"/>
+  <rect class="keep" x="700" y="250" width="20" height="20"/>
+  <rect class="zoombox" x="560" y="110" width="160" height="160" rx="2"/>
+  <rect class="keep" x="560" y="294" width="14" height="14" rx="2" style="stroke:none"/>
+  <text x="584" y="306">key &lt;= query: keep s</text>
+  <rect class="masked" x="560" y="318" width="14" height="14" rx="2" style="stroke:var(--border); stroke-width:1"/>
+  <text x="584" y="330">key &gt; query: s = -inf</text>
+
+  <!-- legend -->
+  <rect class="full" x="40" y="428" width="14" height="14" rx="2"/>
+  <text x="62" y="440">full: no mask (6)</text>
+  <rect class="diag" x="210" y="428" width="14" height="14" rx="2"/>
+  <text x="232" y="440">diagonal: per-element mask (4)</text>
+  <rect class="skip" x="470" y="428" width="14" height="14" rx="2"/>
+  <text x="492" y="440">skipped, beyond hi (6)</text>
+  <text class="meta" x="40" y="462">10 of 16 blocks computed. As the number of blocks grows, this tends to half.</text>
+</svg>

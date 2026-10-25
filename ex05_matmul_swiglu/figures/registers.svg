@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 330" width="840" height="330" role="img" aria-labelledby="t d">
+  <title id="t">Accumulator registers per thread</title>
+  <desc id="d">With 8 warps, 256 threads share a tile's accumulators. Exercise 4's 128 by 128 tile with one accumulator needs 64 registers per thread. The same tile with two accumulators needs 128. A 128 by 64 tile with two accumulators is back to 64. The cap is 255 registers per thread, and everything else the thread keeps alive comes on top of the accumulators.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106);
+          --destructive:oklch(0.513 0.143 39.3); --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --destructive:oklch(0.719 0.112 39.6); --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .track { fill:var(--muted); }
+    .acc { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; font-weight:500; }
+    .tick { stroke:var(--muted-foreground); }
+    .cap { stroke:var(--destructive); stroke-width:1.5; stroke-dasharray:4 3; }
+    .cap-label { fill:var(--destructive); font-size:12px; font-weight:500; }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="329" rx="16"/>
+  <!-- scale: x = 330 + 1.8 * registers; 255 -> 789 -->
+
+  <text class="eyebrow" x="24" y="36">ACCUMULATOR REGISTERS PER THREAD · 8 WARPS = 256 THREADS</text>
+  <text class="cap-label" x="789" y="62" text-anchor="end">cap: 255 per thread, then spills</text>
+
+  <!-- row 1: ex04 -->
+  <text x="24" y="90">ex04: 128 x 128, one acc</text>
+  <text class="mono ink-2" x="24" y="108">128 * 128 / 256</text>
+  <rect class="track" x="330" y="80" width="459" height="28" rx="6"/>
+  <rect class="acc" x="330" y="80" width="115.2" height="28" rx="6"/>
+  <text class="on" x="437" y="99" text-anchor="end">64</text>
+
+  <!-- row 2: same tile, two accumulators -->
+  <text x="24" y="150">128 x 128, two acc</text>
+  <text class="mono ink-2" x="24" y="168">2 * 128 * 128 / 256</text>
+  <rect class="track" x="330" y="140" width="459" height="28" rx="6"/>
+  <rect class="acc" x="330" y="140" width="230.4" height="28" rx="6"/>
+  <text class="on" x="552" y="159" text-anchor="end">128</text>
+  <text class="meta" x="572" y="159">+ fragments, pointers, masks ...</text>
+
+  <!-- row 3: smaller tile, two accumulators -->
+  <text x="24" y="210">128 x 64, two acc</text>
+  <text class="mono ink-2" x="24" y="228">2 * 128 * 64 / 256</text>
+  <rect class="track" x="330" y="200" width="459" height="28" rx="6"/>
+  <rect class="acc" x="330" y="200" width="115.2" height="28" rx="6"/>
+  <text class="on" x="437" y="219" text-anchor="end">64</text>
+
+  <line class="cap" x1="789" y1="70" x2="789" y2="240"/>
+
+  <!-- axis -->
+  <path class="tick" d="M330,248 V254 M445.2,248 V254 M560.4,248 V254 M675.6,248 V254 M789,248 V254"/>
+  <g class="meta" text-anchor="middle">
+    <text x="330" y="270">0</text>
+    <text x="445.2" y="270">64</text>
+    <text x="560.4" y="270">128</text>
+    <text x="675.6" y="270">192</text>
+    <text x="789" y="270">255</text>
+  </g>
+
+  <text class="ink-2" x="24" y="304">Accumulators only. Everything else a thread keeps alive in the K loop comes on top.</text>
+</svg>

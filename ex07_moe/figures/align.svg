@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 530" width="860" height="530" role="img" aria-labelledby="t d">
+  <title id="t">moe_align on the worked example</title>
+  <desc id="d">Six pairs from topk_ids [[0,2],[2,1],[0,2]] are grouped by expert into sorted_ids [0,4,6,6, 3,6,6,6, 1,2,5,6]. Each expert's group is padded to block_m 4 with the sentinel 6, so block 0 is expert 0, block 1 expert 1 and block 2 expert 2: expert_ids [0,1,2].</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-3:oklch(0.79 0.045 152.8);
+          --chart-line-3:oklch(0.55 0.081 152.8); --chart-4:oklch(0.79 0.06 53.3);
+          --chart-line-4:oklch(0.55 0.108 53.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-3:oklch(0.5 0.055 151);
+            --chart-line-3:oklch(0.78 0.099 151); --chart-4:oklch(0.52 0.065 46.8);
+            --chart-line-4:oklch(0.78 0.117 46.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .edge { fill:none; stroke:var(--muted-foreground); }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 3; }
+    .e0 { fill:var(--chart-2); }
+    .e1 { fill:var(--chart-4); }
+    .e2 { fill:var(--chart-3); }
+    .e0s { fill:none; stroke:var(--brand); stroke-width:1.5; }
+    .e1s { fill:none; stroke:var(--chart-line-4); stroke-width:1.5; }
+    .e2s { fill:none; stroke:var(--chart-line-3); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="859" height="529" rx="16"/>
+  <text class="eyebrow" x="40" y="44">1 · FLATTEN TOPK_IDS INTO PAIRS</text>
+  <text class="mono meta" x="40" y="62">topk_ids = [[0, 2], [2, 1], [0, 2]]</text>
+  <path class="edge" d="M218,100 V96 H306 V100"/><text class="meta" x="262.0" y="90" text-anchor="middle">token 0</text>
+  <path class="edge" d="M314,100 V96 H402 V100"/><text class="meta" x="358.0" y="90" text-anchor="middle">token 1</text>
+  <path class="edge" d="M410,100 V96 H498 V100"/><text class="meta" x="454.0" y="90" text-anchor="middle">token 2</text>
+  <text class="meta" x="40" y="122">pair</text>
+  <text class="meta" x="40" y="150.0">expert</text>
+  <text class="mono ink-2" x="238.0" y="122" text-anchor="middle">0</text><rect class="e0" x="216" y="128" width="44" height="34" rx="2"/><text class="mono" x="238.0" y="149.0" text-anchor="middle">e0</text>
+  <text class="mono ink-2" x="286.0" y="122" text-anchor="middle">1</text><rect class="e2" x="264" y="128" width="44" height="34" rx="2"/><text class="mono" x="286.0" y="149.0" text-anchor="middle">e2</text>
+  <text class="mono ink-2" x="334.0" y="122" text-anchor="middle">2</text><rect class="e2" x="312" y="128" width="44" height="34" rx="2"/><text class="mono" x="334.0" y="149.0" text-anchor="middle">e2</text>
+  <text class="mono ink-2" x="382.0" y="122" text-anchor="middle">3</text><rect class="e1" x="360" y="128" width="44" height="34" rx="2"/><text class="mono" x="382.0" y="149.0" text-anchor="middle">e1</text>
+  <text class="mono ink-2" x="430.0" y="122" text-anchor="middle">4</text><rect class="e0" x="408" y="128" width="44" height="34" rx="2"/><text class="mono" x="430.0" y="149.0" text-anchor="middle">e0</text>
+  <text class="mono ink-2" x="478.0" y="122" text-anchor="middle">5</text><rect class="e2" x="456" y="128" width="44" height="34" rx="2"/><text class="mono" x="478.0" y="149.0" text-anchor="middle">e2</text>
+  <text class="eyebrow" x="600" y="44">PER EXPERT</text>
+  <text class="mono meta" x="710" y="72" text-anchor="middle" style="font-size:13px">e0</text>
+  <text class="mono meta" x="754" y="72" text-anchor="middle" style="font-size:13px">e1</text>
+  <text class="mono meta" x="798" y="72" text-anchor="middle" style="font-size:13px">e2</text>
+  <text class="ink-2" x="600" y="94">count</text>
+  <text class="mono" x="710" y="94" text-anchor="middle" style="font-size:13px">2</text>
+  <text class="mono" x="754" y="94" text-anchor="middle" style="font-size:13px">1</text>
+  <text class="mono" x="798" y="94" text-anchor="middle" style="font-size:13px">3</text>
+  <text class="ink-2" x="600" y="116">padded</text>
+  <text class="mono" x="710" y="116" text-anchor="middle" style="font-size:13px">4</text>
+  <text class="mono" x="754" y="116" text-anchor="middle" style="font-size:13px">4</text>
+  <text class="mono" x="798" y="116" text-anchor="middle" style="font-size:13px">4</text>
+  <text class="ink-2" x="600" y="138">start</text>
+  <text class="mono" x="710" y="138" text-anchor="middle" style="font-size:13px">0</text>
+  <text class="mono" x="754" y="138" text-anchor="middle" style="font-size:13px">4</text>
+  <text class="mono" x="798" y="138" text-anchor="middle" style="font-size:13px">8</text>
+  <text class="meta" x="600" y="160">padded = count rounded up to 4</text>
+  <text class="eyebrow" x="40" y="240">2 · GROUP BY EXPERT,</text>
+  <text class="eyebrow" x="40" y="258">PAD TO BLOCK_M = 4</text>
+  <path class="axis" d="M238.0,166 C238.0,242 238.0,226 238.0,312"/>
+  <path class="axis" d="M430.0,166 C430.0,242 286.0,226 286.0,312"/>
+  <path class="axis" d="M382.0,166 C382.0,242 446.0,226 446.0,312"/>
+  <path class="axis" d="M286.0,166 C286.0,242 654.0,226 654.0,312"/>
+  <path class="axis" d="M334.0,166 C334.0,242 702.0,226 702.0,312"/>
+  <path class="axis" d="M478.0,166 C478.0,242 750.0,226 750.0,312"/>
+  <text class="meta" x="40" y="338.0">sorted_ids</text>
+  <text class="meta" x="40" y="372">row</text>
+  <rect class="e0" x="216" y="316" width="44" height="34" rx="2"/><text class="mono" x="238.0" y="337.0" text-anchor="middle">0</text><text class="mono meta" x="238.0" y="372" text-anchor="middle">0</text>
+  <rect class="e0" x="264" y="316" width="44" height="34" rx="2"/><text class="mono" x="286.0" y="337.0" text-anchor="middle">4</text><text class="mono meta" x="286.0" y="372" text-anchor="middle">1</text>
+  <rect class="pad" x="312.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="334.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="334.0" y="372" text-anchor="middle">2</text>
+  <rect class="pad" x="360.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="382.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="382.0" y="372" text-anchor="middle">3</text>
+  <rect class="e1" x="424" y="316" width="44" height="34" rx="2"/><text class="mono" x="446.0" y="337.0" text-anchor="middle">3</text><text class="mono meta" x="446.0" y="372" text-anchor="middle">4</text>
+  <rect class="pad" x="472.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="494.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="494.0" y="372" text-anchor="middle">5</text>
+  <rect class="pad" x="520.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="542.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="542.0" y="372" text-anchor="middle">6</text>
+  <rect class="pad" x="568.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="590.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="590.0" y="372" text-anchor="middle">7</text>
+  <rect class="e2" x="632" y="316" width="44" height="34" rx="2"/><text class="mono" x="654.0" y="337.0" text-anchor="middle">1</text><text class="mono meta" x="654.0" y="372" text-anchor="middle">8</text>
+  <rect class="e2" x="680" y="316" width="44" height="34" rx="2"/><text class="mono" x="702.0" y="337.0" text-anchor="middle">2</text><text class="mono meta" x="702.0" y="372" text-anchor="middle">9</text>
+  <rect class="e2" x="728" y="316" width="44" height="34" rx="2"/><text class="mono" x="750.0" y="337.0" text-anchor="middle">5</text><text class="mono meta" x="750.0" y="372" text-anchor="middle">10</text>
+  <rect class="pad" x="776.5" y="316.5" width="43" height="33" rx="2"/><text class="mono meta" x="798.0" y="337.0" text-anchor="middle">6</text><text class="mono meta" x="798.0" y="372" text-anchor="middle">11</text>
+  <path class="e0s" d="M218,386 V391 H402 V386"/>
+  <text class="meta" x="310.0" y="410" text-anchor="middle">block 0, expert 0</text>
+  <text class="mono" x="310.0" y="430" text-anchor="middle">expert_ids[0] = 0</text>
+  <path class="e1s" d="M426,386 V391 H610 V386"/>
+  <text class="meta" x="518.0" y="410" text-anchor="middle">block 1, expert 1</text>
+  <text class="mono" x="518.0" y="430" text-anchor="middle">expert_ids[1] = 1</text>
+  <path class="e2s" d="M634,386 V391 H818 V386"/>
+  <text class="meta" x="726.0" y="410" text-anchor="middle">block 2, expert 2</text>
+  <text class="mono" x="726.0" y="430" text-anchor="middle">expert_ids[2] = 2</text>
+  <rect class="pad" x="40.5" y="466.5" width="13" height="13" rx="2"/><text x="62" y="478">padding slot: holds the sentinel <tspan class="mono">T * top_k = 6</tspan>, not a valid pair, so its row is masked</text>
+  <text class="ink-2" x="40" y="502">Every block of 4 rows belongs to one expert. 12 rows, 6 of them padding.</text>
+</svg>

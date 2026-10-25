@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 540" width="840" height="540" role="img" aria-labelledby="t d">
+  <title id="t">FlashAttention: one program's key loop</title>
+  <desc id="d">The program owning query block 2 keeps its Q tile resident. At each step it loads one K tile and one V tile, computes a BLOCK_M by BLOCK_N block of scores s and probabilities p in registers, and folds p times the V tile into its fp32 accumulator, with running row max m and row sum l. The N by N score matrix is never stored.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-4:oklch(0.79 0.06 53.3); --chart-line-4:oklch(0.55 0.108 53.3);
+          --on-fill:oklch(1 0.005 106); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-4:oklch(0.52 0.065 46.8); --chart-line-4:oklch(0.78 0.117 46.8);
+            --on-fill:oklch(0.208 0.013 86); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .matrix { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .ghost { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .cut { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .edge { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .axis { fill:none; stroke:var(--muted-foreground); marker-end:url(#tip); }
+    .q { fill:var(--brand); }
+    .b-strip { fill:var(--chart-4); }
+    .b { fill:var(--chart-line-4); }
+    .c { fill:var(--foreground); }
+    .on { fill:var(--on-fill); font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; font-weight:500; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="539" rx="16"/>
+
+  <!-- K^T: [D, N], keys along columns, 4 key blocks of 60 -->
+  <rect class="matrix" x="300" y="60" width="240" height="90" rx="2"/>
+  <rect class="b-strip" x="300" y="60" width="240" height="90"/>
+  <path class="cut" d="M360,60 V150 M420,60 V150 M480,60 V150"/>
+  <rect class="b" x="360" y="60" width="60" height="90"/>
+  <g class="mono" text-anchor="middle">
+    <text x="330" y="126">K0</text>
+    <text class="on" x="390" y="126">K1</text>
+    <text x="450" y="126">K2</text>
+    <text x="510" y="126">K3</text>
+  </g>
+  <text class="title" x="310" y="80">K^T</text>
+  <text class="mono" x="310" y="97">[D, N]</text>
+  <path class="axis" d="M300,46 H360"/><text class="meta" x="366" y="50">N keys</text>
+  <path class="axis" d="M286,60 V110"/><text class="meta" x="281" y="126" text-anchor="middle">D</text>
+
+  <!-- Q: [N, D], query block 2 is this program's tile -->
+  <rect class="matrix" x="170" y="200" width="90" height="240" rx="2"/>
+  <path class="cut" d="M170,260 H260 M170,320 H260 M170,380 H260"/>
+  <rect class="q" x="170" y="320" width="90" height="60"/>
+  <text class="on" x="215" y="346" text-anchor="middle">Q tile</text>
+  <text class="on" x="215" y="363" text-anchor="middle" style="font-size:11px">resident</text>
+  <text class="title" x="180" y="224">Q</text>
+  <text class="mono ink-2" x="180" y="242">[N, D]</text>
+  <path class="axis" d="M156,200 V260"/><text class="meta" x="151" y="276" text-anchor="middle">N</text>
+
+  <!-- S: [N, N], never stored -->
+  <rect class="ghost" x="300" y="200" width="240" height="240" rx="2"/>
+  <path class="edge" d="M260,320 H360 M260,380 H360 M360,150 V320 M420,150 V320"/>
+  <rect class="c" x="360" y="320" width="60" height="60" rx="2"/>
+  <text class="on" x="390" y="346" text-anchor="middle">s, p</text>
+  <text class="on" x="390" y="363" text-anchor="middle" style="font-size:11px">regs</text>
+  <text class="title" x="310" y="224">S, P</text>
+  <text class="mono ink-2" x="310" y="242">[N, N]</text>
+  <text class="meta" x="420" y="464" text-anchor="middle">never written to memory:</text>
+  <text class="meta" x="420" y="482" text-anchor="middle">one block exists per step</text>
+
+  <!-- edges from the s block across to the accumulator (drawn under V) -->
+  <path class="edge" d="M420,320 H700 M420,380 H700"/>
+
+  <!-- V: [N, D], keys along rows -->
+  <rect class="matrix" x="580" y="200" width="90" height="240" rx="2"/>
+  <rect class="b-strip" x="580" y="200" width="90" height="240"/>
+  <path class="cut" d="M580,260 H670 M580,320 H670 M580,380 H670"/>
+  <rect class="b" x="580" y="260" width="90" height="60"/>
+  <g class="mono" text-anchor="middle">
+    <text x="625" y="234">V0</text>
+    <text class="on" x="625" y="294">V1</text>
+    <text x="625" y="354">V2</text>
+    <text x="625" y="414">V3</text>
+  </g>
+  <text class="title" x="590" y="464">V</text>
+  <text class="mono ink-2" x="606" y="464">[N, D]</text>
+  <path class="axis" d="M684,200 V260"/><text class="meta" x="689" y="276" text-anchor="middle">N</text>
+
+  <!-- accumulator: same rows as the Q tile -->
+  <rect class="c" x="704" y="320" width="14" height="60" rx="2"/>
+  <rect class="c" x="722" y="320" width="14" height="60" rx="2"/>
+  <rect class="c" x="740" y="320" width="76" height="60" rx="2"/>
+  <text class="on" x="778" y="346" text-anchor="middle">acc</text>
+  <text class="on" x="778" y="363" text-anchor="middle" style="font-size:11px">fp32</text>
+  <g class="mono" text-anchor="middle">
+    <text x="711" y="310">m</text>
+    <text x="729" y="310">l</text>
+  </g>
+  <text class="meta" x="756" y="404" text-anchor="middle">running state</text>
+  <text class="mono ink-2" x="756" y="422" text-anchor="middle">m, l: [BLOCK_M]</text>
+  <text class="mono ink-2" x="756" y="440" text-anchor="middle">acc: [BLOCK_M, D]</text>
+
+  <!-- top left: the step -->
+  <text class="eyebrow" x="40" y="66">ONE PROGRAM · STEP 2 OF 4</text>
+  <text class="mono" x="40" y="98" style="font-size:13px">s = Q @ K1 * scale</text>
+  <text class="mono" x="40" y="120" style="font-size:13px">update m, l</text>
+  <text class="mono" x="40" y="142" style="font-size:13px">acc = alpha*acc + p @ V1</text>
+  <text class="ink-2" x="40" y="178">After the loop: O = acc / l</text>
+
+  <!-- right: legend -->
+  <text class="eyebrow" x="580" y="66">PER KEY BLOCK</text>
+  <rect class="b" x="580" y="84" width="14" height="14" rx="2"/>
+  <text x="604" y="96">load a K tile and a V tile</text>
+  <rect class="c" x="580" y="114" width="14" height="14" rx="2"/>
+  <text x="604" y="126">two tl.dot calls, softmax</text>
+  <text x="604" y="144">in registers between them</text>
+  <rect class="q" x="580" y="162" width="14" height="14" rx="2"/>
+  <text x="604" y="174">Q tile: loaded once</text>
+
+  <!-- bottom: HBM summary -->
+  <text class="meta" x="40" y="504">HBM traffic: Q, K, V, O only.</text>
+  <text class="meta" x="40" y="522">The scores never leave the chip.</text>
+</svg>

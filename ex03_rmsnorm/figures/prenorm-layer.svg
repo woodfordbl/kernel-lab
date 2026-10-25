@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 290" width="840" height="290" role="img" aria-labelledby="t d">
+  <title id="t">Pre-norm transformer layer</title>
+  <desc id="d">The residual stream x runs left to right. A branch goes through RMSNorm and attention and is added back, giving h = x + attn(...). h continues on the stream as the new residual and also feeds a second RMSNorm and the MLP, whose output is added back before the next layer. This kernel fuses the first add and the second RMSNorm.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --border:oklch(0.9 0.005 106);
+          --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106); --muted-foreground:oklch(0.5 0.005 106);
+          --on-fill:oklch(1 0.005 106); --brand:oklch(0.46 0.032 240); --brand-muted:oklch(0.935 0.0096 240); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --border:oklch(0.94 0.013 86 / 12%);
+            --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86); --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --on-fill:oklch(0.208 0.013 86); --brand:oklch(0.78 0.035 240); --brand-muted:oklch(0.3 0.014 240); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .stream { fill:none; stroke:var(--foreground); stroke-width:2; }
+    .flow { fill:none; stroke:var(--muted-foreground); }
+    .arrow { marker-end:url(#tip); }
+    .hot { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .box { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .op { fill:var(--foreground); }
+    .on { fill:var(--on-fill); }
+    .plus { fill:var(--card); stroke:var(--foreground); stroke-width:1.5; }
+    .plus-mark { fill:none; stroke:var(--foreground); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,1 L9,5 L0,9" style="fill:none; stroke:var(--muted-foreground); stroke-width:1.5"/>
+    </marker>
+  </defs>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="289" rx="16"/>
+
+  <!-- this kernel: the first add + the second RMSNorm -->
+  <rect class="hot" x="404" y="58" width="218" height="178" rx="6"/>
+  <text class="eyebrow" x="418" y="224">THIS KERNEL</text>
+
+  <!-- residual stream -->
+  <text class="eyebrow" x="40" y="44">RESIDUAL STREAM</text>
+  <text class="mono" x="40" y="88">x</text>
+  <path class="stream" d="M40,100 H418 M442,100 H718"/>
+  <path class="stream arrow" d="M742,100 H806"/>
+  <text class="meta" x="806" y="84" text-anchor="end">next layer</text>
+  <text class="mono" x="452" y="88">h</text>
+  <text class="meta" x="702" y="88" text-anchor="end">h, the new residual</text>
+
+  <!-- (+) nodes -->
+  <circle class="plus" cx="430" cy="100" r="12"/>
+  <path class="plus-mark" d="M424,100 H436 M430,94 V106"/>
+  <circle class="plus" cx="730" cy="100" r="12"/>
+  <path class="plus-mark" d="M724,100 H736 M730,94 V106"/>
+
+  <!-- attention branch -->
+  <path class="flow arrow" d="M80,100 V190 H108"/>
+  <rect class="box" x="110" y="172" width="96" height="36" rx="6"/>
+  <text x="158" y="195" text-anchor="middle">RMSNorm</text>
+  <path class="flow arrow" d="M206,190 H238"/>
+  <rect class="op" x="240" y="172" width="110" height="36" rx="6"/>
+  <text class="on" x="295" y="195" text-anchor="middle">attention</text>
+  <path class="flow arrow" d="M350,190 H430 V114"/>
+  <text class="mono" x="396" y="150" text-anchor="end">attn(...)</text>
+
+  <!-- MLP branch -->
+  <path class="flow arrow" d="M470,100 V190 H484"/>
+  <rect class="box" x="486" y="172" width="88" height="36" rx="6"/>
+  <text x="530" y="195" text-anchor="middle">RMSNorm</text>
+  <path class="flow arrow" d="M574,190 H628"/>
+  <text class="mono" x="586" y="182">out</text>
+  <rect class="op" x="630" y="172" width="70" height="36" rx="6"/>
+  <text class="on" x="665" y="195" text-anchor="middle">MLP</text>
+  <path class="flow arrow" d="M700,190 H730 V114"/>
+
+  <!-- caption -->
+  <text class="ink-2" x="40" y="262">h = x + attn(...) is used twice: it stays on the stream, and it is normalized for the MLP.</text>
+</svg>

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 360" width="840" height="360" role="img" aria-labelledby="t d">
+  <title id="t">A 1-D grid of programs and the mask</title>
+  <desc id="d">n = 2500 elements and BLOCK_SIZE = 1024 give a grid of 3 programs. Program 0 covers elements 0 to 1023 and program 1 covers 1024 to 2047. Program 2 covers 2048 to 3071, but only 2048 to 2499 are real: its first 452 lanes have mask True, and the last 572 lanes, past the end of the tensor, have mask False and are skipped by load and store.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --card:oklch(1 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106); --brand:oklch(0.46 0.032 240);
+          --brand-muted:oklch(0.935 0.0096 240); --chart-2:oklch(0.82 0.04 244.9);
+          --destructive:oklch(0.513 0.143 39.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --card:oklch(0.24 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%); --brand:oklch(0.78 0.035 240);
+            --brand-muted:oklch(0.3 0.014 240); --chart-2:oklch(0.46 0.05 252.8);
+            --destructive:oklch(0.719 0.112 39.6); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .block { fill:var(--chart-2); stroke:var(--background); stroke-width:2; }
+    .sel { fill:var(--brand-muted); stroke:var(--brand); stroke-width:1.5; }
+    .pad { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .end { stroke:var(--destructive); stroke-width:1.5; }
+    .warn { fill:var(--destructive); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+    .lane-t { fill:var(--brand-muted); stroke:var(--brand); }
+    .lane-f { fill:var(--muted); stroke:var(--muted-foreground); stroke-dasharray:2 2; }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="359" rx="16"/>
+  <!-- scale: x = 60 + 0.234375 * element index (720 px for 3072 elements) -->
+
+  <text class="eyebrow" x="24" y="36">N = 2500 · BLOCK_SIZE = 1024 · GRID = (3,)</text>
+
+  <!-- the three programs over the index line -->
+  <rect class="block" x="60" y="72" width="240" height="44" rx="2"/>
+  <rect class="block" x="300" y="72" width="240" height="44" rx="2"/>
+  <rect class="sel" x="541" y="73" width="104.9" height="42" rx="2"/>
+  <rect class="pad" x="645.9" y="73" width="134.1" height="42" rx="2"/>
+  <g text-anchor="middle">
+    <text x="180" y="99">pid 0</text>
+    <text x="420" y="99">pid 1</text>
+    <text x="593.5" y="99">pid 2</text>
+    <text class="ink-2" x="713" y="99">past the end</text>
+  </g>
+
+  <!-- index ticks -->
+  <g class="mono" text-anchor="middle">
+    <text x="60" y="140">0</text>
+    <text x="300" y="140">1024</text>
+    <text x="540" y="140">2048</text>
+    <text x="780" y="140">3072</text>
+  </g>
+
+  <!-- end of the tensor -->
+  <line class="end" x1="645.9" y1="58" x2="645.9" y2="124"/>
+  <text class="mono warn" x="645.9" y="52" text-anchor="middle">n = 2500</text>
+
+  <!-- zoom into pid 2 -->
+  <path class="guide" d="M541,124 L60,196 M780,124 L780,196"/>
+  <text class="eyebrow" x="420" y="172" text-anchor="middle">ZOOM: PID 2, LANES 0 .. 1023</text>
+
+  <!-- lanes: 452 real (left), 572 masked (right); 720 px wide, same proportion -->
+  <g>
+    <rect class="lane-t" x="60" y="200" width="317.8" height="40" rx="2"/>
+    <rect class="lane-f" x="377.8" y="200" width="402.2" height="40" rx="2"/>
+  </g>
+  <text class="mono" x="218.9" y="225" text-anchor="middle" style="font-size:13px">mask = True</text>
+  <text class="mono" x="578.9" y="225" text-anchor="middle" style="font-size:13px">mask = False</text>
+  <line class="end" x1="377.8" y1="192" x2="377.8" y2="248"/>
+
+  <g class="mono" text-anchor="middle">
+    <text x="60" y="264">2048</text>
+    <text x="377.8" y="264">2500</text>
+    <text x="780" y="264">3071</text>
+  </g>
+
+  <text x="60" y="300">452 real elements</text>
+  <text class="meta" x="60" y="320">load, add and store as usual</text>
+  <text x="400" y="300">572 lanes past the end of the tensor</text>
+  <text class="meta" x="400" y="320">load and store skip them: that memory isn't yours</text>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 330" width="840" height="330" role="img" aria-labelledby="t d">
+  <title id="t">HBM traffic: naive attention vs FlashAttention</title>
+  <desc id="d">At N 4096, H 16, D 64 in fp16, naive attention writes the 537 MB score matrix S, reads it back, writes P, and reads P again: about 2.15 GB, against 34 MB for Q, K, V and O. FlashAttention keeps s and p in registers, so its HBM traffic is just the 34 MB of Q, K, V and O.</desc>
+  <style>
+    /* Granite tokens (light, then dark) */
+    svg { --background:oklch(0.97 0.005 106); --muted:oklch(0.945 0.005 106);
+          --border:oklch(0.9 0.005 106); --foreground:oklch(0.24 0.005 106); --ink-2:oklch(0.42 0.005 106);
+          --muted-foreground:oklch(0.5 0.005 106);
+          --chart-2:oklch(0.82 0.04 244.9); --chart-4:oklch(0.79 0.06 53.3); }
+    @media (prefers-color-scheme: dark) {
+      svg { --background:oklch(0.208 0.013 86); --muted:oklch(0.3 0.013 86);
+            --border:oklch(0.94 0.013 86 / 12%); --foreground:oklch(0.94 0.013 86); --ink-2:oklch(0.8 0.013 86);
+            --muted-foreground:oklch(0.94 0.013 86 / 60%);
+            --chart-2:oklch(0.46 0.05 252.8); --chart-4:oklch(0.52 0.065 46.8); }
+    }
+    text { font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size:14px; fill:var(--foreground); }
+    .frame { fill:var(--background); stroke:var(--border); }
+    .title { font-size:15px; font-weight:500; }
+    .ink-2 { fill:var(--ink-2); }
+    .meta { font-size:12px; fill:var(--muted-foreground); }
+    .mono, .mono text { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; }
+    .eyebrow { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; font-weight:500; letter-spacing:.12em; fill:var(--muted-foreground); }
+    .lane { fill:var(--muted); }
+    .io { fill:var(--chart-2); stroke:var(--background); stroke-width:2; }
+    .sp { fill:var(--chart-4); stroke:var(--background); stroke-width:2; }
+    .tick { stroke:var(--muted-foreground); }
+    .guide { fill:none; stroke:var(--muted-foreground); stroke-dasharray:3 4; }
+  </style>
+  <rect class="frame" x="0.5" y="0.5" width="839" height="329" rx="16"/>
+  <!-- scale: x = 160 + MB * 0.2934 (2181 MB = 640 px). Q,K,V,O = 4 x 8.4 MB = 34 MB; S or P = 537 MB -->
+
+  <text class="eyebrow" x="24" y="40">HBM TRAFFIC PER CALL · N = 4096, H = 16, D = 64, FP16</text>
+
+  <!-- naive -->
+  <text class="title" x="24" y="90">Naive</text>
+  <text class="meta" x="24" y="108">S and P in HBM</text>
+  <text class="meta" x="160" y="68">Q, K, V, O</text>
+  <path class="guide" d="M165,72 V80"/>
+  <rect class="lane" x="160" y="80" width="640" height="44" rx="6"/>
+  <rect class="io" x="160" y="81" width="10" height="42" rx="2"/>
+  <rect class="sp" x="170" y="81" width="157.5" height="42" rx="2"/>
+  <rect class="sp" x="327.5" y="81" width="157.5" height="42" rx="2"/>
+  <rect class="sp" x="485" y="81" width="157.5" height="42" rx="2"/>
+  <rect class="sp" x="642.5" y="81" width="157.5" height="42" rx="2"/>
+  <g class="mono" text-anchor="middle">
+    <text x="248.75" y="99">write S</text><text x="248.75" y="115">537 MB</text>
+    <text x="406.25" y="99">read S</text><text x="406.25" y="115">537 MB</text>
+    <text x="563.75" y="99">write P</text><text x="563.75" y="115">537 MB</text>
+    <text x="721.25" y="99">read P</text><text x="721.25" y="115">537 MB</text>
+  </g>
+  <text class="ink-2" x="160" y="148">About 2.15 GB, almost all of it the N x N score matrix moving in and out.</text>
+
+  <!-- flash -->
+  <text class="title" x="24" y="200">FlashAttention</text>
+  <text class="meta" x="24" y="218">s and p in registers</text>
+  <rect class="lane" x="160" y="190" width="640" height="44" rx="6"/>
+  <rect class="io" x="160" y="191" width="10" height="42" rx="2"/>
+  <text x="182" y="208">34 MB</text>
+  <text class="meta" x="182" y="225">read Q, K, V once, write O</text>
+  <text class="ink-2" x="160" y="258">About 65 times less. Re-reads of K and V by other query blocks mostly hit L2.</text>
+
+  <!-- axis -->
+  <path class="tick" d="M160,284 H800 M160,280 V288 M453.4,280 V288 M746.8,280 V288"/>
+  <g class="meta" text-anchor="middle">
+    <text x="160" y="304">0</text>
+    <text x="453.4" y="304">1 GB</text>
+    <text x="746.8" y="304">2 GB</text>
+  </g>
+</svg>
